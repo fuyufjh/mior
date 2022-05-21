@@ -17,72 +17,59 @@ import FolderIcon from '@mui/icons-material/Folder';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import RssFeedIcon from '@mui/icons-material/RssFeed';
+import FeedInfo from '../models/FeedInfo';
+import EditFeedDialog from './EditFeedDialog';
 
-function createData(
-  name: string,
-  calories: number,
-  fat: number,
-  carbs: number,
-  protein: number,
-) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
+const subscribedFeeds: FeedInfo[] = [
+  { id: 1, name: "Summer Time Rendering", url: "https://mikanani.me/RSS/Bangumi?bangumiId=2711&subgroupid=382", keywords: "1080p 简日" },
+  { id: 2, name: "辉夜大小姐想让我告白-Ultra Romantic-", url: "https://mikanani.me/RSS/Bangumi?bangumiId=2699&subgroupid=552", keywords: "CHT" },
+  { id: 3, name: "间谍过家家", url: "https://mikanani.me/RSS/Bangumi?bangumiId=2709&subgroupid=562", keywords: "" },
 ];
 
 export default function FeedList() {
+  const emptyFeed: FeedInfo = {
+    id: 0,
+    name: '',
+    url: '',
+    keywords: ''
+  }
+  const [openDialog, setOpenDialog] = React.useState(false);
+  const [editingFeed, setEditingFeed] = React.useState(emptyFeed);
+
+  const openEditDialog = (feed: FeedInfo) => {
+    setEditingFeed(feed);
+    setOpenDialog(true);
+  }
+
   return (
-    <List>
-      <ListItem
-        secondaryAction={
-          <>
-            <IconButton aria-label="edit">
-              <EditIcon />
-            </IconButton>
-            <IconButton edge="end" aria-label="delete">
-              <DeleteIcon />
-            </IconButton>
-          </>
-        }
-      >
-        <ListItemAvatar>
-          <Avatar>
-            <RssFeedIcon />
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText
-          primary="Summer Time Rendering"
-          secondary="https://mikanani.me/RSS/Classic"
-        />
-      </ListItem>
-      <ListItem
-        secondaryAction={
-          <>
-            <IconButton aria-label="edit">
-              <EditIcon />
-            </IconButton>
-            <IconButton edge="end" aria-label="delete">
-              <DeleteIcon />
-            </IconButton>
-          </>
-        }
-      >
-        <ListItemAvatar>
-          <Avatar>
-            <RssFeedIcon />
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText
-          primary="Summer Time Rendering"
-          secondary="https://mikanani.me/RSS/Classic"
-        />
-      </ListItem>
-    </List >
+    <>
+      <List>
+        {subscribedFeeds.map((feed: FeedInfo) => (
+          <ListItem
+            secondaryAction={
+              <>
+                <IconButton aria-label="edit" onClick={() => openEditDialog(feed)}>
+                  <EditIcon />
+                </IconButton>
+                <IconButton edge="end" aria-label="delete">
+                  <DeleteIcon />
+                </IconButton>
+              </>
+            }
+          >
+            <ListItemAvatar>
+              <Avatar>
+                <RssFeedIcon />
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              primary={feed.name}
+              secondary={feed.url}
+            />
+          </ListItem>
+        ))}
+      </List >
+      <EditFeedDialog feed={editingFeed} open={openDialog} setOpen={setOpenDialog} />
+    </>
   );
 }

@@ -52,7 +52,7 @@ export default function AddFeedDialog() {
             <TextField
               margin="dense"
               id="keywords"
-              label="Keywords (space seperated)"
+              label="Keywords (optional)"
               type="text"
               fullWidth
               variant="standard"
