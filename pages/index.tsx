@@ -7,8 +7,8 @@ import Link from '../src/Link';
 import ProTip from '../src/ProTip';
 import Copyright from '../src/Copyright';
 import FeedList from '../components/FeedList'
-import Fab from '@mui/material/Fab';
-import AddIcon from '@mui/icons-material/Add'
+import AddFeedDialog from '../components/AddFeedDialog';
+
 
 const Home: NextPage = () => {
   return (
@@ -19,15 +19,7 @@ const Home: NextPage = () => {
         }}>
           <FeedList />
         </Box>
-        <Box sx={{
-          position: 'fixed',
-          bottom: 20,
-          right: 20,
-        }}>
-          <Fab color="primary" aria-label="add">
-            <AddIcon />
-          </Fab>
-        </Box>
+        <AddFeedDialog />
       </Container>
     </Box>
   );
