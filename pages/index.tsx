@@ -6,29 +6,30 @@ import Box from '@mui/material/Box';
 import Link from '../src/Link';
 import ProTip from '../src/ProTip';
 import Copyright from '../src/Copyright';
+import FeedList from '../components/FeedList'
+import Fab from '@mui/material/Fab';
+import AddIcon from '@mui/icons-material/Add'
 
 const Home: NextPage = () => {
   return (
-    <Container maxWidth="lg">
-      <Box
-        sx={{
+    <Box>
+      <Container maxWidth="lg">
+        <Box sx={{
           my: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant="h4" component="h1" gutterBottom>
-          MUI v5 + Next.js with TypeScript example
-        </Typography>
-        <Link href="/about" color="secondary">
-          Go to the about page
-        </Link>
-        <ProTip />
-        <Copyright />
-      </Box>
-    </Container>
+        }}>
+          <FeedList />
+        </Box>
+        <Box sx={{
+          position: 'fixed',
+          bottom: 20,
+          right: 20,
+        }}>
+          <Fab color="primary" aria-label="add">
+            <AddIcon />
+          </Fab>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 
