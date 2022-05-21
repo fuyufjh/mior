@@ -8,14 +8,21 @@ import ProTip from '../src/ProTip';
 import Copyright from '../src/Copyright';
 import FeedList from '../components/FeedList'
 import AddFeedDialog from '../components/AddFeedDialog';
-
+import RssInfoCard from '../components/RssInfoCard'
 
 const Home: NextPage = () => {
   return (
     <Box>
+      <Container>
+        <Box sx={{
+          my: 2,
+        }}>
+          <RssInfoCard />
+        </Box>
+      </Container>
       <Container maxWidth="lg">
         <Box sx={{
-          my: 4,
+          my: 2,
         }}>
           <FeedList />
         </Box>
