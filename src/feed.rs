@@ -8,6 +8,7 @@ use rocket::serde::{Serialize, Deserialize, json::Json};
 use rocket_db_pools::{sqlx, Database, Connection};
 
 use futures::{stream::TryStreamExt, future::TryFutureExt};
+use rocket::figment::Source;
 
 type Result<T, E = rocket::response::Debug<sqlx::Error>> = std::result::Result<T, E>;
 
@@ -31,14 +32,14 @@ async fn create(mut db: Connection<Db>, feed: Json<SourceFeed>) -> Result<Create
 }
 
 #[get("/")]
-async fn list(mut db: Connection<Db>) -> Result<Json<Vec<i64>>> {
-    let ids = sqlx::query!("SELECT id FROM sources")
+async fn list(mut db: Connection<Db>) -> Result<Json<Vec<SourceFeed>>> {
+    let feeds = sqlx::query!("SELECT id, name, url, keywords FROM sources")
         .fetch(&mut *db)
-        .map_ok(|record| record.id)
+        .map_ok(|r| SourceFeed { id: Some(r.id), name: r.name, url: r.url, keywords: r.keywords } )
         .try_collect::<Vec<_>>()
         .await?;
 
-    Ok(Json(ids))
+    Ok(Json(feeds))
 }
 
 #[get("/<id>")]
