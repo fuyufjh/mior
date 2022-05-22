@@ -54,25 +54,18 @@ interface Props {
   open: boolean;
   handleClose: () => void;
   feed: FeedInfo;
-  setFeed: (feed: FeedInfo) => void;
+  setFeed: React.Dispatch<React.SetStateAction<FeedInfo>>;
 }
 
 const CORS_PROXY = "https://warp-co.rs/";
 
 export default function EditFeedDialog(props: Props) {
   const { open, handleClose, feed, setFeed } = props;
-  const { id, url, name, keywords } = feed;
-  const isNew = id === -1;
+  const isNew = feed.id === -1;
 
-  const setUrl = (url: string) => {
-    setFeed({ id, url, name, keywords });
-  };
-  const setName = (name: string) => {
-    setFeed({ id, url, name, keywords });
-  };
-  const setKeywords = (keywords: string) => {
-    setFeed({ id, url, name, keywords });
-  }
+  const setUrl = (url: string) => setFeed(prev => ({ ...prev, url }));
+  const setName = (name: string) => setFeed(prev => ({ ...prev, name }));
+  const setKeywords = (keywords: string) => setFeed(prev => ({ ...prev, keywords }));
 
   // Control the snackbar of sucess or failure
   const [showFetchOK, setShowFetchOK] = React.useState(false);
@@ -86,8 +79,8 @@ export default function EditFeedDialog(props: Props) {
   const [fetchedItems, setFetchedItems] = React.useState([] as FeedItem[]);
 
   React.useEffect(() => {
-    if (url) {
-      fetch(CORS_PROXY + url)
+    if (feed.url) {
+      fetch(CORS_PROXY + feed.url)
         .then(res => res.text())
         .then(text => new XMLParser().parse(text))
         .then((result: any) => {
@@ -113,10 +106,10 @@ export default function EditFeedDialog(props: Props) {
     } else {
       setFetchedItems([]);
     }
-  }, [url])
+  }, [feed.url])
 
   // Filter fetched items by user-specified keywords
-  const previewItems = filterItems(fetchedItems, keywords);
+  const previewItems = filterItems(fetchedItems, feed.keywords);
 
   return (
     <>
@@ -135,7 +128,7 @@ export default function EditFeedDialog(props: Props) {
             type="url"
             fullWidth
             variant="standard"
-            value={url}
+            value={feed.url}
             onChange={(e) => setUrl(e.target.value)}
           />
           <TextField
@@ -145,7 +138,7 @@ export default function EditFeedDialog(props: Props) {
             type="text"
             fullWidth
             variant="standard"
-            value={name}
+            value={feed.name}
             onChange={(e) => setName(e.target.value)}
           />
           <Tooltip TransitionComponent={Zoom} title="Seperated by spaces" arrow>
@@ -156,7 +149,7 @@ export default function EditFeedDialog(props: Props) {
               type="text"
               fullWidth
               variant="standard"
-              value={keywords}
+              value={feed.keywords}
               onChange={(e) => setKeywords(e.target.value)}
             />
           </Tooltip>
