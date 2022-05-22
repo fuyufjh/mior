@@ -11,6 +11,8 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import FeedPreviewTable from './FeedPreviewTable';
 import FeedItem from '../models/FeedItem';
+import Tooltip from '@mui/material/Tooltip';
+import Zoom from '@mui/material/Zoom';
 
 function readItems(item: any): FeedItem[] {
   if (item) {
@@ -33,6 +35,20 @@ function readItems(item: any): FeedItem[] {
   return [];
 }
 
+function filterItems(items: FeedItem[], keywords: string | string[]): FeedItem[] {
+  if (typeof keywords === 'string') {
+    keywords = keywords.split(' ').filter(s => s.length > 0)
+  }
+  return items.filter(item => {
+    for (var keyword of keywords) {
+      if (item.title.indexOf(keyword) == -1) {
+        return false;
+      }
+    }
+    return true;
+  })
+}
+
 interface Props {
   open: boolean;
   handleClose: () => void;
@@ -45,6 +61,7 @@ export default function AddFeedDialog(props: Props) {
 
   const [url, setUrl] = React.useState("");
   const [name, setName] = React.useState("");
+  const [keywords, setKeywords] = React.useState("");
 
   const [showFetchOK, setShowFetchOK] = React.useState(false);
   const [fetchedItems, setFetchedItems] = React.useState([] as FeedItem[]);
@@ -52,6 +69,7 @@ export default function AddFeedDialog(props: Props) {
   const [errMsg, setErrMsg] = React.useState("");
 
   const [showPreview, setShowPreview] = React.useState(false);
+  const [previewItems, setPreviewItems] = React.useState([] as FeedItem[]);
 
   React.useEffect(() => {
     if (url) {
@@ -63,7 +81,9 @@ export default function AddFeedDialog(props: Props) {
             const title = result.rss.channel.title as string;
             setName(title);
             const item = result.rss.channel.item;
-            setFetchedItems(readItems(item));
+            const fetchedItems = readItems(item);
+            setFetchedItems(fetchedItems);
+            setPreviewItems(filterItems(fetchedItems, keywords));
           } catch (err) {
             console.error(err);
             console.log(result);
@@ -109,17 +129,28 @@ export default function AddFeedDialog(props: Props) {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <TextField
-            margin="dense"
-            id="keywords"
-            label="Keywords (optional)"
-            type="text"
-            fullWidth
-            variant="standard"
-          />
+          <Tooltip TransitionComponent={Zoom} title="Seperated by spaces" arrow>
+            <TextField
+              margin="dense"
+              id="keywords"
+              label="Filter Keywords (Optional)"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={keywords}
+              onChange={(e) => {
+                const keywords = e.target.value as string;
+                setKeywords(keywords);
+                setPreviewItems(filterItems(fetchedItems, keywords));
+              }}
+            />
+          </Tooltip>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowPreview(true)} disabled={fetchedItems.length === 0}>Preview</Button>
+          <Button onClick={() => setShowPreview(true)} disabled={previewItems.length === 0}>
+            Preview ({previewItems.length})
+          </Button>
+          <div style={{ flex: '1 0 0' }} />
           <Button onClick={handleClose}>Cancel</Button>
           <Button variant='contained' onClick={handleClose}>Subscribe</Button>
         </DialogActions>
@@ -128,7 +159,7 @@ export default function AddFeedDialog(props: Props) {
       <Dialog open={showPreview} onClose={() => setShowPreview(false)} maxWidth="xl">
         <DialogTitle>Preview</DialogTitle>
         <DialogContent sx={{ "padding-bottom": 0 }}>
-          <FeedPreviewTable rows={fetchedItems} />
+          <FeedPreviewTable rows={previewItems} />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowPreview(false)}>Dismiss</Button>
