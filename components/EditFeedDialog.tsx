@@ -68,7 +68,7 @@ export default function EditFeedDialog(props: Props) {
   const setKeywords = (keywords: string) => setFeed(prev => ({ ...prev, keywords }));
 
   // Control the snackbar of sucess or failure
-  const [showFetchOK, setShowFetchOK] = React.useState(false);
+  const [showFetchOk, setShowFetchOk] = React.useState(false);
   const [showFetchErr, setShowFetchErr] = React.useState(false);
   const [errMsg, setErrMsg] = React.useState("");
 
@@ -96,7 +96,7 @@ export default function EditFeedDialog(props: Props) {
             console.log(result);
             throw new Error("Bad XML format");
           }
-          setShowFetchOK(true);
+          setShowFetchOk(true);
         })
         .catch((error: any) => {
           setErrMsg(String(error));
@@ -110,6 +110,19 @@ export default function EditFeedDialog(props: Props) {
 
   // Filter fetched items by user-specified keywords
   const previewItems = filterItems(fetchedItems, feed.keywords);
+
+  let onCloseFetchOkSnackbar = (event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setShowFetchOk(false);
+  };
+  let onCloseFetchErrSnackbar = (event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setShowFetchErr(false);
+  };
 
   return (
     <>
@@ -175,9 +188,9 @@ export default function EditFeedDialog(props: Props) {
       </Dialog>
 
       <Snackbar
-        open={showFetchOK}
+        open={showFetchOk}
         autoHideDuration={3000}
-        onClose={() => setShowFetchOK(false)}
+        onClose={onCloseFetchOkSnackbar}
       >
         <Alert severity="success">Fetched metadata successfully.</Alert>
       </Snackbar>
@@ -185,7 +198,7 @@ export default function EditFeedDialog(props: Props) {
       <Snackbar
         open={showFetchErr}
         autoHideDuration={3000}
-        onClose={() => setShowFetchErr(false)}
+        onClose={onCloseFetchErrSnackbar}
       >
         <Alert severity="error">{errMsg}</Alert>
       </Snackbar>
