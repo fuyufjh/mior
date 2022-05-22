@@ -65,25 +65,25 @@ export default function AddFeedDialog(props: Props) {
   const isNew = id === -1;
 
   const setUrl = (url: string) => {
-    feed.url = url;
-    setFeed(feed);
+    setFeed({ id, url, name, keywords });
   };
   const setName = (name: string) => {
-    feed.name = name;
-    setFeed(feed);
+    setFeed({ id, url, name, keywords });
   };
   const setKeywords = (keywords: string) => {
-    feed.keywords = keywords;
-    setFeed(feed);
+    setFeed({ id, url, name, keywords });
   }
 
+  // Control the snackbar of sucess or failure
   const [showFetchOK, setShowFetchOK] = React.useState(false);
-  const [fetchedItems, setFetchedItems] = React.useState([] as FeedItem[]);
   const [showFetchErr, setShowFetchErr] = React.useState(false);
   const [errMsg, setErrMsg] = React.useState("");
 
+  // Control the Preview dialog
   const [showPreview, setShowPreview] = React.useState(false);
-  const [previewItems, setPreviewItems] = React.useState([] as FeedItem[]);
+
+  // State of fetched items
+  const [fetchedItems, setFetchedItems] = React.useState([] as FeedItem[]);
 
   React.useEffect(() => {
     if (url) {
@@ -97,8 +97,8 @@ export default function AddFeedDialog(props: Props) {
             const item = result.rss.channel.item;
             const fetchedItems = readItems(item);
             setFetchedItems(fetchedItems);
-            setPreviewItems(filterItems(fetchedItems, keywords));
           } catch (err) {
+            setFetchedItems([]);
             console.error(err);
             console.log(result);
             throw new Error("Bad XML format");
@@ -112,9 +112,11 @@ export default function AddFeedDialog(props: Props) {
         })
     } else {
       setFetchedItems([]);
-      setPreviewItems([]);
     }
   }, [url])
+
+  // Filter fetched items by user-specified keywords
+  const previewItems = filterItems(fetchedItems, keywords);
 
   return (
     <>
@@ -155,11 +157,7 @@ export default function AddFeedDialog(props: Props) {
               fullWidth
               variant="standard"
               value={keywords}
-              onChange={(e) => {
-                const keywords = e.target.value as string;
-                setKeywords(keywords);
-                setPreviewItems(filterItems(fetchedItems, keywords));
-              }}
+              onChange={(e) => setKeywords(e.target.value)}
             />
           </Tooltip>
         </DialogContent>
