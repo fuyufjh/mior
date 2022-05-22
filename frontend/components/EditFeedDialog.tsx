@@ -127,31 +127,23 @@ export default function EditFeedDialog(props: Props) {
   };
 
   const handleSubmit = () => {
+    let endpoint: string;
     if (feed.id === -1) {
-      // Create
-      fetch("/api/feeds", {
-        method: 'POST',
-        body: JSON.stringify(feed),
-      })
-        .then((result: any) => {
-          console.log(result);
-        })
-        .catch((error: any) => {
-          console.error(error);
-        });
+      endpoint = "/api/feeds";
     } else {
-      // Update
-      fetch(`/api/feeds/${feed.id}`, {
-        method: 'POST',
-        body: JSON.stringify(feed),
-      })
-        .then((result: any) => {
-          console.log(result);
-        })
-        .catch((error: any) => {
-          console.error(error);
-        });
+      endpoint = `/api/feeds/${feed.id}`;
     }
+    // Update
+    fetch(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(feed),
+    })
+      .then((result: any) => {
+        console.log(result);
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
     handleClose();
   }
 
