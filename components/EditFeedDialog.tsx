@@ -12,7 +12,7 @@ import AddIcon from '@mui/icons-material/Add'
 import FeedInfo from '../models/FeedInfo';
 import { Feed } from '@mui/icons-material';
 
-export interface Props {
+interface Props {
   feed: FeedInfo;
   open: boolean;
   setOpen: React.Dispatch<boolean>;

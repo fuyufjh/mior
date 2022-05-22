@@ -21,7 +21,7 @@ import FeedInfo from '../models/FeedInfo';
 import EditFeedDialog from './EditFeedDialog';
 
 const subscribedFeeds: FeedInfo[] = [
-  { id: 1, name: "Summer Time Rendering", url: "https://mikanani.me/RSS/Bangumi?bangumiId=2711&subgroupid=382", keywords: "1080p 简日" },
+  { id: 1, name: "夏日重现", url: "https://mikanani.me/RSS/Bangumi?bangumiId=2711&subgroupid=382", keywords: "1080p 简日" },
   { id: 2, name: "辉夜大小姐想让我告白-Ultra Romantic-", url: "https://mikanani.me/RSS/Bangumi?bangumiId=2699&subgroupid=552", keywords: "CHT" },
   { id: 3, name: "间谍过家家", url: "https://mikanani.me/RSS/Bangumi?bangumiId=2709&subgroupid=562", keywords: "" },
 ];
