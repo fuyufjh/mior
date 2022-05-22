@@ -9,7 +9,6 @@
     "lint": "next lint",
     "post-update": "echo \"codesandbox preview only, need an update\" && yarn upgrade --latest"
   },
-  "proxy": "http://localhost:8000",
   "dependencies": {
     "@emotion/cache": "latest",
     "@emotion/react": "latest",

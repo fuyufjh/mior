@@ -16,17 +16,33 @@ import FeedInfo from '../models/FeedInfo';
 const EMPTY_FEED: FeedInfo = { id: -1, name: '', url: '', keywords: '' }
 
 const Home: NextPage = () => {
-  const [openAddDialog, setOpenAddDialog] = React.useState(false);
-  const [feedInfo, setFeedInfo] = React.useState(EMPTY_FEED)
+
+  const [feeds, setFeeds] = React.useState([] as FeedInfo[]);
+
+  const [openEditDialog, setOpenEditDialog] = React.useState(false);
+  const [editingFeed, setEditingFeed] = React.useState(EMPTY_FEED);
 
   const addFeed = () => {
-    setFeedInfo(EMPTY_FEED);
-    setOpenAddDialog(true);
+    setEditingFeed(EMPTY_FEED);
+    setOpenEditDialog(true);
   }
   const editFeed = (feed: FeedInfo) => {
-    setFeedInfo(feed);
-    setOpenAddDialog(true);
+    setEditingFeed(feed);
+    setOpenEditDialog(true);
   }
+
+  React.useEffect(() => {
+    fetch("/api/feeds")
+      .then(res => res.json())
+      .then((result: any) => {
+        console.log(result);
+        const feeds = result as FeedInfo[];
+        setFeeds(feeds);
+      })
+      .catch((error: any) => {
+        console.error(error);
+      })
+  }, [])
 
   return (
     <>
@@ -42,7 +58,7 @@ const Home: NextPage = () => {
         <Box sx={{
           my: 2,
         }}>
-          <FeedList openEditDialog={editFeed} />
+          <FeedList feeds={feeds} openEditDialog={editFeed} />
         </Box>
       </Container>
 
@@ -57,10 +73,10 @@ const Home: NextPage = () => {
       </Box>
 
       <AddFeedDialog
-        open={openAddDialog}
-        handleClose={() => setOpenAddDialog(false)}
-        feed={feedInfo}
-        setFeed={setFeedInfo}
+        open={openEditDialog}
+        handleClose={() => setOpenEditDialog(false)}
+        feed={editingFeed}
+        setFeed={setEditingFeed}
       />
     </>
   );
