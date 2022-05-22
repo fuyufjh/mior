@@ -13,6 +13,7 @@ import FeedPreviewTable from './FeedPreviewTable';
 import FeedItem from '../models/FeedItem';
 import Tooltip from '@mui/material/Tooltip';
 import Zoom from '@mui/material/Zoom';
+import FeedInfo from '../models/FeedInfo';
 
 function readItems(item: any): FeedItem[] {
   if (item) {
@@ -52,16 +53,29 @@ function filterItems(items: FeedItem[], keywords: string | string[]): FeedItem[]
 interface Props {
   open: boolean;
   handleClose: () => void;
+  feed: FeedInfo;
+  setFeed: (feed: FeedInfo) => void;
 }
 
 const CORS_PROXY = "https://warp-co.rs/";
 
 export default function AddFeedDialog(props: Props) {
-  const { open, handleClose } = props;
+  const { open, handleClose, feed, setFeed } = props;
+  const { id, url, name, keywords } = feed;
+  const isNew = id === -1;
 
-  const [url, setUrl] = React.useState("");
-  const [name, setName] = React.useState("");
-  const [keywords, setKeywords] = React.useState("");
+  const setUrl = (url: string) => {
+    feed.url = url;
+    setFeed(feed);
+  };
+  const setName = (name: string) => {
+    feed.name = name;
+    setFeed(feed);
+  };
+  const setKeywords = (keywords: string) => {
+    feed.keywords = keywords;
+    setFeed(feed);
+  }
 
   const [showFetchOK, setShowFetchOK] = React.useState(false);
   const [fetchedItems, setFetchedItems] = React.useState([] as FeedItem[]);
@@ -96,13 +110,16 @@ export default function AddFeedDialog(props: Props) {
           setShowFetchErr(true);
           console.error(error);
         })
+    } else {
+      setFetchedItems([]);
+      setPreviewItems([]);
     }
   }, [url])
 
   return (
     <>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Add RSS Feed</DialogTitle>
+        <DialogTitle>{isNew ? "Add" : "Edit"} RSS Feed</DialogTitle>
         <DialogContent>
           <DialogContentText>
             To subscribe to this website, please enter your email address here. We

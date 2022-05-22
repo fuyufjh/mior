@@ -11,19 +11,25 @@ import AddFeedDialog from '../components/AddFeedDialog';
 import RssInfoCard from '../components/RssInfoCard'
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
+import FeedInfo from '../models/FeedInfo';
+
+const EMPTY_FEED: FeedInfo = { id: -1, name: '', url: '', keywords: '' }
 
 const Home: NextPage = () => {
   const [openAddDialog, setOpenAddDialog] = React.useState(false);
+  const [feedInfo, setFeedInfo] = React.useState(EMPTY_FEED)
 
-  const onClickAddFeed = () => {
+  const addFeed = () => {
+    setFeedInfo(EMPTY_FEED);
     setOpenAddDialog(true);
   }
-  const handleClose = () => {
-    setOpenAddDialog(false);
+  const editFeed = (feed: FeedInfo) => {
+    setFeedInfo(feed);
+    setOpenAddDialog(true);
   }
 
   return (
-    <Box>
+    <>
       <Container>
         <Box sx={{
           my: 2,
@@ -31,24 +37,32 @@ const Home: NextPage = () => {
           <RssInfoCard />
         </Box>
       </Container>
+
       <Container maxWidth="lg">
         <Box sx={{
           my: 2,
         }}>
-          <FeedList />
+          <FeedList openEditDialog={editFeed} />
         </Box>
-        <AddFeedDialog open={openAddDialog} handleClose={handleClose} />
       </Container>
+
       <Box sx={{
         position: 'fixed',
         bottom: 20,
         right: 20,
       }}>
-        <Fab color="primary" aria-label="add" onClick={onClickAddFeed}>
+        <Fab color="primary" aria-label="add" onClick={addFeed}>
           <AddIcon />
         </Fab>
       </Box>
-    </Box>
+
+      <AddFeedDialog
+        open={openAddDialog}
+        handleClose={() => setOpenAddDialog(false)}
+        feed={feedInfo}
+        setFeed={setFeedInfo}
+      />
+    </>
   );
 };
 

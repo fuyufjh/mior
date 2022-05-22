@@ -26,50 +26,39 @@ const subscribedFeeds: FeedInfo[] = [
   { id: 3, name: "间谍过家家", url: "https://mikanani.me/RSS/Bangumi?bangumiId=2709&subgroupid=562", keywords: "" },
 ];
 
-export default function FeedList() {
-  const emptyFeed: FeedInfo = {
-    id: 0,
-    name: '',
-    url: '',
-    keywords: ''
-  }
-  const [openDialog, setOpenDialog] = React.useState(false);
-  const [editingFeed, setEditingFeed] = React.useState(emptyFeed);
+interface Props {
+  openEditDialog: (feed: FeedInfo) => void;
+}
 
-  const openEditDialog = (feed: FeedInfo) => {
-    setEditingFeed(feed);
-    setOpenDialog(true);
-  }
+export default function FeedList(props: Props) {
+  const { openEditDialog } = props;
 
   return (
-    <>
-      <List>
-        {subscribedFeeds.map((feed: FeedInfo) => (
-          <ListItem
-            secondaryAction={
-              <>
-                <IconButton aria-label="edit" onClick={() => openEditDialog(feed)}>
-                  <EditIcon />
-                </IconButton>
-                <IconButton edge="end" aria-label="delete">
-                  <DeleteIcon />
-                </IconButton>
-              </>
-            }
-          >
-            <ListItemAvatar>
-              <Avatar>
-                <RssFeedIcon />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText
-              primary={feed.name}
-              secondary={feed.url}
-            />
-          </ListItem>
-        ))}
-      </List >
-      <EditFeedDialog feed={editingFeed} open={openDialog} setOpen={setOpenDialog} />
-    </>
+    <List>
+      {subscribedFeeds.map((feed: FeedInfo) => (
+        <ListItem
+          secondaryAction={
+            <>
+              <IconButton aria-label="edit" onClick={() => openEditDialog(feed)}>
+                <EditIcon />
+              </IconButton>
+              <IconButton edge="end" aria-label="delete">
+                <DeleteIcon />
+              </IconButton>
+            </>
+          }
+        >
+          <ListItemAvatar>
+            <Avatar>
+              <RssFeedIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary={feed.name}
+            secondary={feed.url}
+          />
+        </ListItem>
+      ))}
+    </List >
   );
 }
