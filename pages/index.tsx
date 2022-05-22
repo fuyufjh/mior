@@ -7,7 +7,7 @@ import Link from '../src/Link';
 import ProTip from '../src/ProTip';
 import Copyright from '../src/Copyright';
 import FeedList from '../components/FeedList'
-import AddFeedDialog from '../components/AddFeedDialog';
+import AddFeedDialog from '../components/EditFeedDialog';
 import RssInfoCard from '../components/RssInfoCard'
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';

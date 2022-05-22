@@ -59,7 +59,7 @@ interface Props {
 
 const CORS_PROXY = "https://warp-co.rs/";
 
-export default function AddFeedDialog(props: Props) {
+export default function EditFeedDialog(props: Props) {
   const { open, handleClose, feed, setFeed } = props;
   const { id, url, name, keywords } = feed;
   const isNew = id === -1;
