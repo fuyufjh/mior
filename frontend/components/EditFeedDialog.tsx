@@ -55,12 +55,13 @@ interface Props {
   handleClose: () => void;
   feed: FeedInfo;
   setFeed: React.Dispatch<React.SetStateAction<FeedInfo>>;
+  refreshFeedList: () => void;
 }
 
 const CORS_PROXY = "https://warp-co.rs/";
 
 export default function EditFeedDialog(props: Props) {
-  const { open, handleClose, feed, setFeed } = props;
+  const { open, handleClose, feed, setFeed, refreshFeedList } = props;
   const isNew = feed.id === -1;
 
   const setUrl = (url: string) => setFeed(prev => ({ ...prev, url }));
@@ -145,6 +146,7 @@ export default function EditFeedDialog(props: Props) {
         console.error(error);
       });
     handleClose();
+    refreshFeedList();
   }
 
   return (

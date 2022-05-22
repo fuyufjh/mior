@@ -22,6 +22,8 @@ const Home: NextPage = () => {
   const [openEditDialog, setOpenEditDialog] = React.useState(false);
   const [editingFeed, setEditingFeed] = React.useState(EMPTY_FEED);
 
+  const [editCounter, setEditCounter] = React.useState(1);
+
   const addFeed = () => {
     setEditingFeed(EMPTY_FEED);
     setOpenEditDialog(true);
@@ -42,7 +44,7 @@ const Home: NextPage = () => {
       .catch((error: any) => {
         console.error(error);
       })
-  }, [])
+  }, [editCounter])
 
   return (
     <>
@@ -77,6 +79,7 @@ const Home: NextPage = () => {
         handleClose={() => setOpenEditDialog(false)}
         feed={editingFeed}
         setFeed={setEditingFeed}
+        refreshFeedList={() => setEditCounter(prev => prev + 1)}
       />
     </>
   );
