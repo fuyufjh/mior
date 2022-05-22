@@ -60,6 +60,16 @@ async fn delete(mut db: Connection<Db>, id: i64) -> Result<Option<()>> {
     Ok((result.rows_affected() == 1).then(|| ()))
 }
 
+#[post("/<id>", data = "<feed>")]
+async fn update(mut db: Connection<Db>, id: i64, feed: Json<SourceFeed>) -> Result<Option<()>> {
+    let result = sqlx::query!("UPDATE sources SET name = ?, url = ?, keywords = ? WHERE id = ?",
+            feed.name, feed.url, feed.keywords, id)
+        .execute(&mut *db)
+        .await?;
+
+    Ok((result.rows_affected() == 1).then(|| ()))
+}
+
 #[delete("/")]
 async fn destroy(mut db: Connection<Db>) -> Result<()> {
     sqlx::query!("DELETE FROM sources").execute(&mut *db).await?;
@@ -69,6 +79,6 @@ async fn destroy(mut db: Connection<Db>) -> Result<()> {
 
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Feeds", |rocket| async {
-        rocket.mount("/api/feeds", routes![list, create, read, delete, destroy])
+        rocket.mount("/api/feeds", routes![list, create, read, update, delete, destroy])
     })
 }

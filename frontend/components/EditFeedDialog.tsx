@@ -126,6 +126,35 @@ export default function EditFeedDialog(props: Props) {
     setShowFetchErr(false);
   };
 
+  const handleSubmit = () => {
+    if (feed.id === -1) {
+      // Create
+      fetch("/api/feeds", {
+        method: 'POST',
+        body: JSON.stringify(feed),
+      })
+        .then((result: any) => {
+          console.log(result);
+        })
+        .catch((error: any) => {
+          console.error(error);
+        });
+    } else {
+      // Update
+      fetch(`/api/feeds/${feed.id}`, {
+        method: 'POST',
+        body: JSON.stringify(feed),
+      })
+        .then((result: any) => {
+          console.log(result);
+        })
+        .catch((error: any) => {
+          console.error(error);
+        });
+    }
+    handleClose();
+  }
+
   return (
     <>
       <Dialog open={open} onClose={handleClose}>
@@ -175,7 +204,7 @@ export default function EditFeedDialog(props: Props) {
           </Button>
           <div style={{ flex: '1 0 0' }} />
           <Button onClick={handleClose}>Cancel</Button>
-          <Button variant='contained' onClick={handleClose}>Subscribe</Button>
+          <Button variant='contained' onClick={handleSubmit}>Submit</Button>
         </DialogActions>
       </Dialog>
 
