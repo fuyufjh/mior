@@ -9,6 +9,29 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { XMLParser } from 'fast-xml-parser'
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import FeedPreviewTable from './FeedPreviewTable';
+import FeedItem from '../models/FeedItem';
+
+function readItems(item: any): FeedItem[] {
+  if (item) {
+    if (Array.isArray(item)) {
+      // multiple items
+      return (item as any[]).map((e: any, index: number) => ({
+        index: index,
+        title: e.title,
+        link: e.link,
+      }))
+    } else {
+      // single item
+      return [{
+        index: 0,
+        title: item.title,
+        link: item.link,
+      }]
+    }
+  }
+  return [];
+}
 
 interface Props {
   open: boolean;
@@ -24,8 +47,11 @@ export default function AddFeedDialog(props: Props) {
   const [name, setName] = React.useState("");
 
   const [showFetchOK, setShowFetchOK] = React.useState(false);
+  const [fetchedItems, setFetchedItems] = React.useState([] as FeedItem[]);
   const [showFetchErr, setShowFetchErr] = React.useState(false);
   const [errMsg, setErrMsg] = React.useState("");
+
+  const [showPreview, setShowPreview] = React.useState(false);
 
   React.useEffect(() => {
     if (url) {
@@ -36,6 +62,8 @@ export default function AddFeedDialog(props: Props) {
           try {
             const title = result.rss.channel.title as string;
             setName(title);
+            const item = result.rss.channel.item;
+            setFetchedItems(readItems(item));
           } catch (err) {
             console.error(err);
             console.log(result);
@@ -91,10 +119,22 @@ export default function AddFeedDialog(props: Props) {
           />
         </DialogContent>
         <DialogActions>
+          <Button onClick={() => setShowPreview(true)} disabled={fetchedItems.length === 0}>Preview</Button>
           <Button onClick={handleClose}>Cancel</Button>
           <Button variant='contained' onClick={handleClose}>Subscribe</Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog open={showPreview} onClose={() => setShowPreview(false)} maxWidth="xl">
+        <DialogTitle>Preview</DialogTitle>
+        <DialogContent sx={{ "padding-bottom": 0 }}>
+          <FeedPreviewTable rows={fetchedItems} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowPreview(false)}>Dismiss</Button>
+        </DialogActions>
+      </Dialog>
+
       <Snackbar
         open={showFetchOK}
         autoHideDuration={3000}
@@ -102,6 +142,7 @@ export default function AddFeedDialog(props: Props) {
       >
         <Alert severity="success">Fetched metadata successfully.</Alert>
       </Snackbar>
+
       <Snackbar
         open={showFetchErr}
         autoHideDuration={3000}
