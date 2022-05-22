@@ -181,13 +181,12 @@ export default function FeedPreviewTable(props: FeedPreviewTableProps) {
                   <TableCell>
                     {row.title}
                   </TableCell>
-                  <TableCell>
+                  <TableCell padding='none'>
                     <a href={row.link} target="_blank" rel="noreferrer">
                       <IconButton>
                         <ArrowForwardIcon />
                       </IconButton>
                     </a>
-
                   </TableCell>
                 </TableRow>
               ))

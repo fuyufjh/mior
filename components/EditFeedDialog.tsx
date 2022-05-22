@@ -86,7 +86,9 @@ export default function EditFeedDialog(props: Props) {
         .then((result: any) => {
           try {
             const title = result.rss.channel.title as string;
-            setName(title);
+            if (feed.name === "") {
+              setName(title);
+            }
             const item = result.rss.channel.item;
             const fetchedItems = readItems(item);
             setFetchedItems(fetchedItems);
@@ -192,7 +194,7 @@ export default function EditFeedDialog(props: Props) {
         autoHideDuration={3000}
         onClose={onCloseFetchOkSnackbar}
       >
-        <Alert severity="success">Fetched metadata successfully.</Alert>
+        <Alert severity="success">Fetched RSS feed successfully.</Alert>
       </Snackbar>
 
       <Snackbar
