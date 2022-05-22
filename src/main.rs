@@ -1,10 +1,8 @@
 #[macro_use] extern crate rocket;
 
-#[cfg(test)] mod tests;
-
-mod sqlx;
+mod api;
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().attach(sqlx::stage())
+    rocket::build().attach(api::stage())
 }
