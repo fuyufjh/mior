@@ -37,6 +37,7 @@ export default function FeedList(props: Props) {
     <List>
       {subscribedFeeds.map((feed: FeedInfo) => (
         <ListItem
+          key={feed.id}
           secondaryAction={
             <>
               <IconButton aria-label="edit" onClick={() => openEditDialog(feed)}>

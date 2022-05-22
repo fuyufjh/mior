@@ -170,7 +170,7 @@ export default function FeedPreviewTable(props: FeedPreviewTableProps) {
             {rows.slice().sort(getComparator(order, orderBy))
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => (
-                <TableRow hover>
+                <TableRow hover key={row.index}>
                   <TableCell
                     component="th"
                     scope="row"
@@ -182,7 +182,7 @@ export default function FeedPreviewTable(props: FeedPreviewTableProps) {
                     {row.title}
                   </TableCell>
                   <TableCell>
-                    <a href={row.link} target="_blank">
+                    <a href={row.link} target="_blank" rel="noreferrer">
                       <IconButton>
                         <ArrowForwardIcon />
                       </IconButton>
