@@ -1,0 +1,17 @@
+[package]
+name = "rss-merger"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+rocket = { version = "0.5.0-rc.2", features = ["json"] }
+
+[dependencies.sqlx]
+version = "0.5.1"
+default-features = false
+features = ["macros", "offline", "migrate"]
+
+[dependencies.rocket_db_pools]
+version = "0.1.0-rc.2"
+features = ["sqlx_sqlite"]
+
