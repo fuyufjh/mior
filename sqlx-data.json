@@ -1,7 +1,6 @@
 {
   "db": "SQLite",
-  "11e3096becb72f427c8d3911ef4327afd9516143806981e11f8e34d069c14472": {
-    "query": "SELECT id, title, text FROM posts WHERE id = ?",
+  "547231e689e3534e22b9b2a6f9c8bcb28c0469cb68d5e315948069921b51990c": {
     "describe": {
       "columns": [
         {
@@ -10,38 +9,34 @@
           "type_info": "Int64"
         },
         {
-          "name": "title",
+          "name": "name",
           "ordinal": 1,
           "type_info": "Text"
         },
         {
-          "name": "text",
+          "name": "url",
           "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "keywords",
+          "ordinal": 3,
           "type_info": "Text"
         }
       ],
-      "parameters": {
-        "Right": 1
-      },
       "nullable": [
         false,
         false,
+        false,
         false
-      ]
-    }
-  },
-  "3c289da9873097a11191dbedc5c78d86afd6a6d36771bfeb12f331abca6279cf": {
-    "query": "INSERT INTO posts (title, text) VALUES (?, ?)",
-    "describe": {
-      "columns": [],
+      ],
       "parameters": {
-        "Right": 2
-      },
-      "nullable": []
-    }
+        "Right": 1
+      }
+    },
+    "query": "SELECT id, name, url, keywords FROM sources WHERE id = ?"
   },
-  "4415c35941e52a981b10707fe2e1ceb0bad0e473701e51ef21ecb2973c76b4df": {
-    "query": "SELECT id FROM posts",
+  "81bb3f201ab5e73da8c9d195423abc8e892d442ae1af2024f5b8d1539707acfc": {
     "describe": {
       "columns": [
         {
@@ -50,32 +45,43 @@
           "type_info": "Int64"
         }
       ],
-      "parameters": {
-        "Right": 0
-      },
       "nullable": [
         false
-      ]
-    }
-  },
-  "668690acaca0a0c0b4ac306b14d82aa1bee940f0776fae3f9962639b78328858": {
-    "query": "DELETE FROM posts",
-    "describe": {
-      "columns": [],
+      ],
       "parameters": {
         "Right": 0
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "SELECT id FROM sources"
   },
-  "79301b44b77802e0096efd73b1e9adac27b27a3cf7bf853af3a9f130b1684d91": {
-    "query": "DELETE FROM posts WHERE id = ?",
+  "8c7b58224dec8907021a3590bdc43c18543e2ddb824be4aebe0f1587b3a66f6e": {
     "describe": {
       "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "DELETE FROM sources"
+  },
+  "8c8f1479c14584ba477f79f6a600bf17f12030eadb577546223f3d2b0157d56c": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
       "parameters": {
         "Right": 1
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "DELETE FROM sources WHERE id = ?"
+  },
+  "c72075109a9e9c5f616d2632941e6d264fec1532459cec964cca9f9900796379": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "INSERT INTO sources (name, url, keywords) VALUES (?, ?, ?)"
   }
 }
