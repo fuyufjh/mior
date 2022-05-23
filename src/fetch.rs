@@ -117,6 +117,8 @@ mod tests {
     test_case!("1", test_xml_1);
     test_case!("2", test_xml_2);
     test_case!("3", test_xml_3);
+    test_case!("4", test_xml_4);
+    test_case!("5", test_xml_5);
 
     fn test_xml(name: &str) -> Result<()> {
         info!("running test {name}.xml...");
@@ -127,13 +129,13 @@ mod tests {
             serde_json::to_string_pretty(&parsed).unwrap()
         };
 
-        // Uncomment following code to generate result files
-        {
+        // Uncomment following lines to generate result files
+        /*{
             let file = File::create(format!("{PATH}/{name}.result.json"))?;
             let mut writer = BufWriter::new(file);
             writer.write_all(result.as_bytes())?;
             writer.flush()?;
-        }
+        }*/
 
         let expected = {
             let file = File::open(format!("{PATH}/{name}.result.json"))?;
