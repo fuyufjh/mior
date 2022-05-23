@@ -20,6 +20,7 @@ fn rocket() -> _ {
         .attach(AdHoc::try_on_ignite("Run Migrations", run_migrations))
         .mount("/", FileServer::from("./frontend/out"))
         .attach(feed::stage())
+        .attach(fetch::stage())
 }
 
 async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
