@@ -5,7 +5,7 @@ use rocket::futures;
 use rocket::response::status::{BadRequest, Created};
 use rocket::serde::json::Json;
 use rocket::serde::{Deserialize, Serialize};
-use rocket_db_pools::{sqlx, Connection, Database};
+use rocket_db_pools::{sqlx, Connection};
 
 use crate::model::FeedInfo;
 use crate::util::fetch_rss_info;

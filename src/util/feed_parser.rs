@@ -1,14 +1,8 @@
 use std::io::BufRead;
-use std::sync::mpsc::channel;
 
 use anyhow::{anyhow, Result};
 use quick_xml::events::Event;
-use quick_xml::{Reader, Writer};
-use rocket::fairing::AdHoc;
-use rocket::response::status::BadRequest;
-use rocket::response::Responder;
-use rocket::serde::json::Json;
-use rocket::Request;
+use quick_xml::Reader;
 
 use crate::model::{FeedInfo, FeedItem, FeedMeta};
 
@@ -30,10 +24,9 @@ where
         let mut buf = Vec::new();
         loop {
             match self.reader.read_event(&mut buf) {
-                Ok(Event::Start(ref e)) => match e.name() {
-                    b"channel" => break self.parse_channel(),
-                    _ => (),
-                },
+                Ok(Event::Start(ref e)) if e.name() == b"channel" => {
+                    break self.parse_channel();
+                }
                 Ok(Event::Eof) => break Err(anyhow!("Tag <channel> not found")),
                 Err(e) => {
                     break Err(anyhow!(
@@ -132,7 +125,7 @@ where
 #[cfg(test)]
 mod tests {
     use std::fs::File;
-    use std::io::{BufReader, BufWriter, Read, Write};
+    use std::io::{BufReader, Read};
 
     use super::*;
 
