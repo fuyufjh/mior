@@ -834,6 +834,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "mior-backend"
+version = "0.0.1"
+dependencies = [
+ "rocket",
+ "rocket_db_pools",
+ "sqlx",
+]
+
+[[package]]
 name = "multer"
 version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1282,15 +1291,6 @@ dependencies = [
  "time",
  "tokio",
  "uncased",
-]
-
-[[package]]
-name = "rss-merger"
-version = "0.0.1"
-dependencies = [
- "rocket",
- "rocket_db_pools",
- "sqlx",
 ]
 
 [[package]]
