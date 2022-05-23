@@ -1,98 +1,6 @@
 {
   "db": "SQLite",
-  "021da8e967ee2543216154cf61ea56a18cd538d9b66bbffed52da3e80861da93": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "url",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "keywords",
-          "ordinal": 3,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "SELECT id, name, url, keywords FROM sources"
-  },
-  "547231e689e3534e22b9b2a6f9c8bcb28c0469cb68d5e315948069921b51990c": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "url",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "keywords",
-          "ordinal": 3,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 1
-      }
-    },
-    "query": "SELECT id, name, url, keywords FROM sources WHERE id = ?"
-  },
-  "8c7b58224dec8907021a3590bdc43c18543e2ddb824be4aebe0f1587b3a66f6e": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "DELETE FROM sources"
-  },
-  "8c8f1479c14584ba477f79f6a600bf17f12030eadb577546223f3d2b0157d56c": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 1
-      }
-    },
-    "query": "DELETE FROM sources WHERE id = ?"
-  },
-  "aef653fade09c499e0e27e0bc428da51ff14b55d459be68fa2b901d48b6402cc": {
+  "0c2697407313b3ff0f81697f6372bedc0876860f6d30a81183e5515688cee012": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -100,9 +8,81 @@
         "Right": 4
       }
     },
-    "query": "UPDATE sources SET name = ?, url = ?, keywords = ? WHERE id = ?"
+    "query": "UPDATE feeds SET name = ?, url = ?, keywords = ? WHERE id = ?"
   },
-  "c72075109a9e9c5f616d2632941e6d264fec1532459cec964cca9f9900796379": {
+  "1214da8d20177dddf6bffc4275c5dbfe12e3b29d3b3024f432dd0301c6f0f64e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "url",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "keywords",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "SELECT id, name, url, keywords FROM feeds"
+  },
+  "453b7db176be8d6cc91a870a2e41746e606a5f73a0f63683b7bc832327f1c466": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "url",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "keywords",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT id, name, url, keywords FROM feeds WHERE id = ?"
+  },
+  "4e9aba0a76b14a4705c39add5e696e45112d413085494bec7d3c588b0dafb014": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -110,6 +90,26 @@
         "Right": 3
       }
     },
-    "query": "INSERT INTO sources (name, url, keywords) VALUES (?, ?, ?)"
+    "query": "INSERT INTO feeds (name, url, keywords) VALUES (?, ?, ?)"
+  },
+  "5f051331441e7a11fed4181bc2f4110e5fb404665726686e37a8082b80832e7c": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "DELETE FROM feeds"
+  },
+  "807a2bb62595176125bb633da5d3fe5f733ad525f5103fb476601dcad4e88031": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "DELETE FROM feeds WHERE id = ?"
   }
 }

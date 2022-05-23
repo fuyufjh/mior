@@ -24,7 +24,7 @@ struct SourceFeed {
 
 #[post("/", data = "<feed>")]
 async fn create(mut db: Connection<Db>, feed: Json<SourceFeed>) -> Result<Created<()>> {
-    sqlx::query!("INSERT INTO sources (name, url, keywords) VALUES (?, ?, ?)", feed.name, feed.url, feed.keywords)
+    sqlx::query!("INSERT INTO feeds (name, url, keywords) VALUES (?, ?, ?)", feed.name, feed.url, feed.keywords)
         .execute(&mut *db)
         .await?;
 
@@ -33,7 +33,7 @@ async fn create(mut db: Connection<Db>, feed: Json<SourceFeed>) -> Result<Create
 
 #[get("/")]
 async fn list(mut db: Connection<Db>) -> Result<Json<Vec<SourceFeed>>> {
-    let feeds = sqlx::query!("SELECT id, name, url, keywords FROM sources")
+    let feeds = sqlx::query!("SELECT id, name, url, keywords FROM feeds")
         .fetch(&mut *db)
         .map_ok(|r| SourceFeed { id: Some(r.id), name: r.name, url: r.url, keywords: r.keywords } )
         .try_collect::<Vec<_>>()
@@ -44,7 +44,7 @@ async fn list(mut db: Connection<Db>) -> Result<Json<Vec<SourceFeed>>> {
 
 #[get("/<id>")]
 async fn read(mut db: Connection<Db>, id: i64) -> Option<Json<SourceFeed>> {
-    sqlx::query!("SELECT id, name, url, keywords FROM sources WHERE id = ?", id)
+    sqlx::query!("SELECT id, name, url, keywords FROM feeds WHERE id = ?", id)
         .fetch_one(&mut *db)
         .map_ok(|r| Json(SourceFeed { id: Some(r.id), name: r.name, url: r.url, keywords: r.keywords }))
         .await
@@ -53,7 +53,7 @@ async fn read(mut db: Connection<Db>, id: i64) -> Option<Json<SourceFeed>> {
 
 #[delete("/<id>")]
 async fn delete(mut db: Connection<Db>, id: i64) -> Result<Option<()>> {
-    let result = sqlx::query!("DELETE FROM sources WHERE id = ?", id)
+    let result = sqlx::query!("DELETE FROM feeds WHERE id = ?", id)
         .execute(&mut *db)
         .await?;
 
@@ -62,7 +62,7 @@ async fn delete(mut db: Connection<Db>, id: i64) -> Result<Option<()>> {
 
 #[post("/<id>", data = "<feed>")]
 async fn update(mut db: Connection<Db>, id: i64, feed: Json<SourceFeed>) -> Result<Option<()>> {
-    let result = sqlx::query!("UPDATE sources SET name = ?, url = ?, keywords = ? WHERE id = ?",
+    let result = sqlx::query!("UPDATE feeds SET name = ?, url = ?, keywords = ? WHERE id = ?",
             feed.name, feed.url, feed.keywords, id)
         .execute(&mut *db)
         .await?;
@@ -72,7 +72,7 @@ async fn update(mut db: Connection<Db>, id: i64, feed: Json<SourceFeed>) -> Resu
 
 #[delete("/")]
 async fn destroy(mut db: Connection<Db>) -> Result<()> {
-    sqlx::query!("DELETE FROM sources").execute(&mut *db).await?;
+    sqlx::query!("DELETE FROM feeds").execute(&mut *db).await?;
 
     Ok(())
 }
