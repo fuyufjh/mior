@@ -6,6 +6,8 @@ use rocket::fs::FileServer;
 use rocket_db_pools::{sqlx, Database};
 
 mod feed;
+mod fetch;
+mod model;
 
 #[derive(Database)]
 #[database("sqlx")]
