@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// One article in RSS Feed
 #[derive(Debug, Default, Serialize, Deserialize)]

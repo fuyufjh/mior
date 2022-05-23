@@ -1,7 +1,8 @@
-use rocket::serde::json::Json;
-use crate::model::FeedInfo;
 use anyhow::Result;
 use rocket::http::hyper::body::Buf;
+use rocket::serde::json::Json;
+
+use crate::model::FeedInfo;
 
 mod feed_parser;
 

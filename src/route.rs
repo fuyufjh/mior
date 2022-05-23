@@ -1,15 +1,15 @@
-use crate::Db;
-
-use rocket::{futures};
-use rocket::fairing::{AdHoc};
+use futures::future::TryFutureExt;
+use futures::stream::TryStreamExt;
+use rocket::fairing::AdHoc;
+use rocket::futures;
 use rocket::response::status::{BadRequest, Created};
-use rocket::serde::{Serialize, Deserialize, json::Json};
+use rocket::serde::json::Json;
+use rocket::serde::{Deserialize, Serialize};
+use rocket_db_pools::{sqlx, Connection, Database};
 
-use rocket_db_pools::{sqlx, Database, Connection};
-
-use futures::{stream::TryStreamExt, future::TryFutureExt};
-use crate::util::fetch_rss_info;
 use crate::model::FeedInfo;
+use crate::util::fetch_rss_info;
+use crate::Db;
 
 type Result<T, E = rocket::response::Debug<sqlx::Error>> = std::result::Result<T, E>;
 
@@ -25,9 +25,14 @@ struct SourceFeed {
 
 #[post("/", data = "<feed>")]
 async fn create(mut db: Connection<Db>, feed: Json<SourceFeed>) -> Result<Created<()>> {
-    sqlx::query!("INSERT INTO feeds (name, url, keywords) VALUES (?, ?, ?)", feed.name, feed.url, feed.keywords)
-        .execute(&mut *db)
-        .await?;
+    sqlx::query!(
+        "INSERT INTO feeds (name, url, keywords) VALUES (?, ?, ?)",
+        feed.name,
+        feed.url,
+        feed.keywords
+    )
+    .execute(&mut *db)
+    .await?;
 
     Ok(Created::new("/").body(()))
 }
@@ -36,7 +41,12 @@ async fn create(mut db: Connection<Db>, feed: Json<SourceFeed>) -> Result<Create
 async fn list(mut db: Connection<Db>) -> Result<Json<Vec<SourceFeed>>> {
     let feeds = sqlx::query!("SELECT id, name, url, keywords FROM feeds")
         .fetch(&mut *db)
-        .map_ok(|r| SourceFeed { id: Some(r.id), name: r.name, url: r.url, keywords: r.keywords } )
+        .map_ok(|r| SourceFeed {
+            id: Some(r.id),
+            name: r.name,
+            url: r.url,
+            keywords: r.keywords,
+        })
         .try_collect::<Vec<_>>()
         .await?;
 
@@ -47,7 +57,14 @@ async fn list(mut db: Connection<Db>) -> Result<Json<Vec<SourceFeed>>> {
 async fn read(mut db: Connection<Db>, id: i64) -> Option<Json<SourceFeed>> {
     sqlx::query!("SELECT id, name, url, keywords FROM feeds WHERE id = ?", id)
         .fetch_one(&mut *db)
-        .map_ok(|r| Json(SourceFeed { id: Some(r.id), name: r.name, url: r.url, keywords: r.keywords }))
+        .map_ok(|r| {
+            Json(SourceFeed {
+                id: Some(r.id),
+                name: r.name,
+                url: r.url,
+                keywords: r.keywords,
+            })
+        })
         .await
         .ok()
 }
@@ -63,10 +80,15 @@ async fn delete(mut db: Connection<Db>, id: i64) -> Result<Option<()>> {
 
 #[post("/<id>", data = "<feed>")]
 async fn update(mut db: Connection<Db>, id: i64, feed: Json<SourceFeed>) -> Result<Option<()>> {
-    let result = sqlx::query!("UPDATE feeds SET name = ?, url = ?, keywords = ? WHERE id = ?",
-            feed.name, feed.url, feed.keywords, id)
-        .execute(&mut *db)
-        .await?;
+    let result = sqlx::query!(
+        "UPDATE feeds SET name = ?, url = ?, keywords = ? WHERE id = ?",
+        feed.name,
+        feed.url,
+        feed.keywords,
+        id
+    )
+    .execute(&mut *db)
+    .await?;
 
     Ok((result.rows_affected() == 1).then(|| ()))
 }
@@ -80,13 +102,18 @@ async fn destroy(mut db: Connection<Db>) -> Result<()> {
 
 #[get("/?<url>")]
 async fn fetch(url: &str) -> Result<Json<FeedInfo>, BadRequest<String>> {
-    fetch_rss_info(url).await.map_err(|e| BadRequest(Some(e.to_string())))
+    fetch_rss_info(url)
+        .await
+        .map_err(|e| BadRequest(Some(e.to_string())))
 }
 
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Routes", |rocket| async {
         rocket
-            .mount("/api/feeds", routes![list, create, read, update, delete, destroy])
+            .mount(
+                "/api/feeds",
+                routes![list, create, read, update, delete, destroy],
+            )
             .mount("/api/fetch", routes![fetch])
     })
 }
