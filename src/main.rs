@@ -5,9 +5,9 @@ use rocket::fairing::AdHoc;
 use rocket::fs::FileServer;
 use rocket_db_pools::{sqlx, Database};
 
-mod feed;
-mod fetch;
+mod route;
 mod model;
+mod util;
 
 #[derive(Database)]
 #[database("sqlx")]
@@ -19,8 +19,7 @@ fn rocket() -> _ {
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Run Migrations", run_migrations))
         .mount("/", FileServer::from("./frontend/out"))
-        .attach(feed::stage())
-        .attach(fetch::stage())
+        .attach(route::stage())
 }
 
 async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {

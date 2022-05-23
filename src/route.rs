@@ -2,13 +2,14 @@ use crate::Db;
 
 use rocket::{futures};
 use rocket::fairing::{AdHoc};
-use rocket::response::status::Created;
+use rocket::response::status::{BadRequest, Created};
 use rocket::serde::{Serialize, Deserialize, json::Json};
 
 use rocket_db_pools::{sqlx, Database, Connection};
 
 use futures::{stream::TryStreamExt, future::TryFutureExt};
-
+use crate::util::fetch::fetch_rss_info;
+use crate::model::FeedInfo;
 
 type Result<T, E = rocket::response::Debug<sqlx::Error>> = std::result::Result<T, E>;
 
@@ -77,8 +78,15 @@ async fn destroy(mut db: Connection<Db>) -> Result<()> {
     Ok(())
 }
 
+#[get("/?<url>")]
+async fn fetch(url: &str) -> Result<Json<FeedInfo>, BadRequest<String>> {
+    fetch_rss_info(url).await.map_err(|e| BadRequest(Some(e.to_string())))
+}
+
 pub fn stage() -> AdHoc {
-    AdHoc::on_ignite("Feeds", |rocket| async {
-        rocket.mount("/api/feeds", routes![list, create, read, update, delete, destroy])
+    AdHoc::on_ignite("Routes", |rocket| async {
+        rocket
+            .mount("/api/feeds", routes![list, create, read, update, delete, destroy])
+            .mount("/api/fetch", routes![fetch])
     })
 }

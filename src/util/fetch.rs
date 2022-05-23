@@ -12,18 +12,7 @@ use rocket::response::Responder;
 use rocket::response::status::BadRequest;
 use rocket::serde::json::Json;
 
-pub fn stage() -> AdHoc {
-    AdHoc::on_ignite("Fetch", |rocket| async {
-        rocket.mount("/api/fetch", routes![fetch])
-    })
-}
-
-#[get("/?<url>")]
-async fn fetch(url: &str) -> Result<Json<FeedInfo>, BadRequest<String>> {
-    fetch_rss_info(url).await.map_err(|e| BadRequest(Some(e.to_string())))
-}
-
-async fn fetch_rss_info(url: &str) -> Result<Json<FeedInfo>> {
+pub async fn fetch_rss_info(url: &str) -> Result<Json<FeedInfo>> {
     let resp = reqwest::get(url).await?;
     let text = resp.bytes().await?;
     let feed_info = parse_xml(text.reader())?;
