@@ -12,8 +12,8 @@ export default function ButtonAppBar() {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            RSS Merger
+          <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
+            mior
           </Typography>
           <Button color="inherit">Login</Button>
         </Toolbar>

@@ -155,8 +155,8 @@ export default function EditFeedDialog(props: Props) {
         <DialogTitle>{isNew ? "Add" : "Edit"} RSS Feed</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            To subscribe to this website, please enter your email address here. We
-            will send updates occasionally.
+            To subscribe to an RSS feed, please enter the URL here. You may optinally filter the results
+            with keywords, which must appear in the title of items.
           </DialogContentText>
           <TextField
             autoFocus
