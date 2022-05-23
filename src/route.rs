@@ -8,7 +8,7 @@ use rocket::serde::{Serialize, Deserialize, json::Json};
 use rocket_db_pools::{sqlx, Database, Connection};
 
 use futures::{stream::TryStreamExt, future::TryFutureExt};
-use crate::util::fetch::fetch_rss_info;
+use crate::util::fetch_rss_info;
 use crate::model::FeedInfo;
 
 type Result<T, E = rocket::response::Debug<sqlx::Error>> = std::result::Result<T, E>;
