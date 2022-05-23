@@ -22,7 +22,10 @@ const Home: NextPage = () => {
   const [openEditDialog, setOpenEditDialog] = React.useState(false);
   const [editingFeed, setEditingFeed] = React.useState(EMPTY_FEED);
 
+  // Increse the counter to triggle refreshing the feed list
   const [editCounter, setEditCounter] = React.useState(1);
+  const refresh = () => setEditCounter(prev => prev + 1);
+
 
   const addFeed = () => {
     setEditingFeed(EMPTY_FEED);
@@ -60,7 +63,7 @@ const Home: NextPage = () => {
         <Box sx={{
           my: 2,
         }}>
-          <FeedList feeds={feeds} openEditDialog={editFeed} />
+          <FeedList feeds={feeds} openEditDialog={editFeed} refreshFeedList={refresh} />
         </Box>
       </Container>
 
@@ -79,7 +82,7 @@ const Home: NextPage = () => {
         handleClose={() => setOpenEditDialog(false)}
         feed={editingFeed}
         setFeed={setEditingFeed}
-        refreshFeedList={() => setEditCounter(prev => prev + 1)}
+        refreshFeedList={refresh}
       />
     </>
   );

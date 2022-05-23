@@ -130,11 +130,11 @@ export default function EditFeedDialog(props: Props) {
   const handleSubmit = () => {
     let endpoint: string;
     if (feed.id === -1) {
-      endpoint = "/api/feeds";
+      endpoint = "/api/feeds"; // create
     } else {
-      endpoint = `/api/feeds/${feed.id}`;
+      endpoint = `/api/feeds/${feed.id}`; // update
     }
-    // Update
+
     fetch(endpoint, {
       method: 'POST',
       body: JSON.stringify(feed),
