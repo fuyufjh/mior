@@ -1,5 +1,5 @@
 [package]
-name = "rss-merger"
+name = "mior-backend"
 version = "0.0.1"
 edition = "2021"
 
