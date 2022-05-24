@@ -154,7 +154,6 @@ mod tests {
     test_case!("5", test_xml_5);
 
     fn test_xml(name: &str) -> Result<()> {
-        info!("running test {name}.xml...");
         let result = {
             let file = File::open(format!("{PATH}/{name}.xml"))?;
             let reader = BufReader::new(file);

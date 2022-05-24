@@ -104,6 +104,7 @@ async fn destroy(mut db: Connection<Db>) -> Result<()> {
 async fn fetch(url: &str) -> Result<Json<FeedInfo>, BadRequest<String>> {
     fetch_rss_info(url, 100)
         .await
+        .map(|r| Json(r))
         .map_err(|e| BadRequest(Some(e.to_string())))
 }
 
