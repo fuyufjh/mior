@@ -15,27 +15,6 @@ import Tooltip from '@mui/material/Tooltip';
 import Zoom from '@mui/material/Zoom';
 import FeedInfo from '../models/FeedInfo';
 
-function readItems(item: any): FeedItem[] {
-  if (item) {
-    if (Array.isArray(item)) {
-      // multiple items
-      return (item as any[]).map((e: any, index: number) => ({
-        index: index,
-        title: e.title,
-        link: e.link,
-      }))
-    } else {
-      // single item
-      return [{
-        index: 0,
-        title: item.title,
-        link: item.link,
-      }]
-    }
-  }
-  return [];
-}
-
 function filterItems(items: FeedItem[], keywords: string | string[]): FeedItem[] {
   if (typeof keywords === 'string') {
     keywords = keywords.split(' ').filter(s => s.length > 0)
@@ -58,8 +37,6 @@ interface Props {
   refreshFeedList: () => void;
 }
 
-const CORS_PROXY = "https://warp-co.rs/";
-
 export default function EditFeedDialog(props: Props) {
   const { open, handleClose, feed, setFeed, refreshFeedList } = props;
   const isNew = feed.id === -1;
@@ -81,29 +58,24 @@ export default function EditFeedDialog(props: Props) {
 
   React.useEffect(() => {
     if (feed.url) {
-      fetch(CORS_PROXY + feed.url)
-        .then(res => res.text())
-        .then(text => new XMLParser().parse(text))
+      fetch(`/api/fetch?url=${encodeURIComponent(feed.url)}`)
+        .then(res => res.json())
         .then((result: any) => {
-          try {
-            const title = result.rss.channel.title as string;
-            if (feed.name === "") {
-              setName(title);
-            }
-            const item = result.rss.channel.item;
-            const fetchedItems = readItems(item);
-            setFetchedItems(fetchedItems);
-          } catch (err) {
-            setFetchedItems([]);
-            console.error(err);
-            console.log(result);
-            throw new Error("Bad XML format");
+          if (feed.name === "") {
+            setName(result.meta.title);
           }
+          const items = (result.items as any[]).map((item: any, index: number) => ({
+            index: index,
+            title: item.title,
+            link: item.link,
+          }));
+          setFetchedItems(items);
           setShowFetchOk(true);
         })
         .catch((error: any) => {
           setErrMsg(String(error));
           setShowFetchErr(true);
+          setFetchedItems([]);
           console.error(error);
         })
     } else {
