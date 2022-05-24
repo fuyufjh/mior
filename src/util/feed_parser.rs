@@ -8,16 +8,19 @@ use crate::model::{FeedInfo, FeedItem, FeedMeta};
 
 pub struct FeedParser<T: BufRead> {
     reader: Reader<T>,
+
+    /// Max number of items to parse
+    limit: usize,
 }
 
 impl<T> FeedParser<T>
 where
     T: BufRead,
 {
-    pub fn new(text: T) -> Self {
+    pub fn new(text: T, limit: usize) -> Self {
         let mut reader = Reader::from_reader(text);
         reader.trim_text(true);
-        Self { reader }
+        Self { reader, limit }
     }
 
     pub fn parse(&mut self) -> Result<FeedInfo> {
@@ -52,15 +55,18 @@ where
                     }
                     b"item" => {
                         items.push(self.parse_item()?);
+                        if items.len() >= self.limit {
+                            break;
+                        }
                     }
                     _ => (),
                 },
                 Ok(Event::End(ref e)) if e.name() == b"channel" => {
-                    break Ok(FeedInfo { meta, items })
+                    break;
                 }
-                Ok(Event::Eof) => break Err(anyhow!("Tag <channel> not closed")),
+                Ok(Event::Eof) => return Err(anyhow!("Tag <channel> not closed")),
                 Err(e) => {
-                    break Err(anyhow!(
+                    return Err(anyhow!(
                         "Error at position {}: {:?}",
                         self.reader.buffer_position(),
                         e
@@ -69,6 +75,7 @@ where
                 _ => (),
             }
         }
+        Ok(FeedInfo { meta, items })
     }
 
     fn parse_item(&mut self) -> Result<FeedItem> {
@@ -151,16 +158,17 @@ mod tests {
         let result = {
             let file = File::open(format!("{PATH}/{name}.xml"))?;
             let reader = BufReader::new(file);
-            let parsed = FeedParser::new(reader).parse()?;
+            let parsed = FeedParser::new(reader, 25).parse()?;
             serde_json::to_string_pretty(&parsed).unwrap()
         };
 
         // Uncomment following lines to generate result files
         // {
-        // let file = File::create(format!("{PATH}/{name}.result.json"))?;
-        // let mut writer = BufWriter::new(file);
-        // writer.write_all(result.as_bytes())?;
-        // writer.flush()?;
+        //     use std::io::{BufWriter, Write};
+        //     let file = File::create(format!("{PATH}/{name}.result.json"))?;
+        //     let mut writer = BufWriter::new(file);
+        //     writer.write_all(result.as_bytes())?;
+        //     writer.flush()?;
         // }
 
         let expected = {
