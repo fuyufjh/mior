@@ -9,9 +9,13 @@ pub struct FeedMerger {
 
 impl FeedMerger {
     pub fn new() -> Self {
-        let channel = Element::new("channel");
         let mut root_node = Element::new("rss");
+        let mut channel = Element::new("channel");
+        let mut title = Element::new("title");
+        title.children.push(XMLNode::Text("MIOR".to_owned()));
+        channel.children.push(XMLNode::Element(title));
         root_node.children.push(XMLNode::Element(channel));
+
         Self { root_node }
     }
 
@@ -32,8 +36,6 @@ impl FeedMerger {
 #[cfg(test)]
 mod tests {
     use std::fs;
-    
-    
 
     use super::*;
 
