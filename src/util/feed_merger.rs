@@ -32,8 +32,8 @@ impl FeedMerger {
 #[cfg(test)]
 mod tests {
     use std::fs;
-    use std::fs::File;
-    use std::io::{BufReader, Cursor, Read};
+    
+    
 
     use super::*;
 

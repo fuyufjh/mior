@@ -1,11 +1,7 @@
+use std::fmt;
 use std::fmt::Formatter;
-use std::io::{BufRead, Read};
-use std::{error, fmt};
 
-use anyhow::{anyhow, Context, Result};
-use quick_xml::events::Event;
-use quick_xml::{Error, Reader};
-use rocket::http::ext::IntoCollection;
+use anyhow::Result;
 use xmltree::{Element, XMLNode};
 
 use crate::model::{FeedInfo, FeedItem, FeedMeta};
@@ -56,10 +52,7 @@ impl FeedDocument {
     }
 
     pub fn read_info(&self) -> Result<FeedInfo> {
-        let node_channel = self
-            .root_node
-            .get_child("channel")
-            .ok_or_else(|| TagNotFoundError("channel"))?;
+        let node_channel = self.root_node.get_child("channel").ok_or(TagNotFoundError("channel"))?;
 
         let meta = Self::read_meta(node_channel)?;
         let items = node_channel
@@ -70,7 +63,7 @@ impl FeedDocument {
                 _ => None,
             })
             .take(self.limit)
-            .map(|tag| Self::read_item(tag))
+            .map(Self::read_item)
             .try_collect()?;
 
         Ok(FeedInfo { meta, items })
@@ -79,9 +72,9 @@ impl FeedDocument {
     fn read_meta(node_channel: &Element) -> Result<FeedMeta> {
         let title = node_channel
             .get_child("title")
-            .ok_or_else(|| TagNotFoundError("title"))?
+            .ok_or(TagNotFoundError("title"))?
             .get_text()
-            .ok_or_else(|| InvalidTagError("title"))?
+            .ok_or(InvalidTagError("title"))?
             .into_owned();
         Ok(FeedMeta { title })
     }
@@ -89,15 +82,15 @@ impl FeedDocument {
     fn read_item(node_item: &Element) -> Result<FeedItem> {
         let title = node_item
             .get_child("title")
-            .ok_or_else(|| TagNotFoundError("title"))?
+            .ok_or(TagNotFoundError("title"))?
             .get_text()
-            .ok_or_else(|| InvalidTagError("title"))?
+            .ok_or(InvalidTagError("title"))?
             .into_owned();
         let link = node_item
             .get_child("link")
-            .ok_or_else(|| TagNotFoundError("link"))?
+            .ok_or(TagNotFoundError("link"))?
             .get_text()
-            .ok_or_else(|| InvalidTagError("link"))?
+            .ok_or(InvalidTagError("link"))?
             .into_owned();
         Ok(FeedItem { title, link })
     }
@@ -106,7 +99,7 @@ impl FeedDocument {
         let node_channel = self
             .root_node
             .take_child("channel")
-            .ok_or_else(|| TagNotFoundError("channel"))?;
+            .ok_or(TagNotFoundError("channel"))?;
 
         let items: Vec<_> = node_channel
             .children
@@ -125,8 +118,6 @@ impl FeedDocument {
 #[cfg(test)]
 mod tests {
     use std::fs;
-    use std::fs::File;
-    use std::io::{read_to_string, BufReader, Read};
 
     use super::*;
 

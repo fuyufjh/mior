@@ -2,13 +2,15 @@ use futures::future::TryFutureExt;
 use futures::stream::TryStreamExt;
 use rocket::fairing::AdHoc;
 use rocket::futures;
+use rocket::http::ContentType;
 use rocket::response::status::{BadRequest, Created};
+use rocket::response::{Debug, Responder};
 use rocket::serde::json::Json;
 use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::{sqlx, Connection};
 
 use crate::model::FeedInfo;
-use crate::util::fetch_rss_info;
+use crate::util::{fetch_rss_info, merge_feeds_data};
 use crate::Db;
 
 type Result<T, E = rocket::response::Debug<sqlx::Error>> = std::result::Result<T, E>;
@@ -104,17 +106,44 @@ async fn destroy(mut db: Connection<Db>) -> Result<()> {
 async fn fetch(url: &str) -> Result<Json<FeedInfo>, BadRequest<String>> {
     fetch_rss_info(url, 100)
         .await
-        .map(|r| Json(r))
+        .map(Json)
         .map_err(|e| BadRequest(Some(e.to_string())))
+}
+
+#[derive(Responder)]
+enum ErrorResponse {
+    #[response(status = 500)]
+    InternalError(String),
+    #[response(status = 400)]
+    BadRequest(String),
+}
+
+#[get("/")]
+async fn rss(mut db: Connection<Db>) -> Result<(ContentType, Vec<u8>), ErrorResponse> {
+    let feeds: Vec<SourceFeed> = sqlx::query!("SELECT id, name, url, keywords FROM feeds")
+        .fetch(&mut *db)
+        .map_ok(|r| SourceFeed {
+            id: Some(r.id),
+            name: r.name,
+            url: r.url,
+            keywords: r.keywords,
+        })
+        .try_collect::<Vec<_>>()
+        .await
+        .map_err(|e| ErrorResponse::InternalError(e.to_string()))?;
+
+    let urls: Vec<_> = feeds.iter().map(|feed| feed.url.as_str()).collect();
+    merge_feeds_data(urls)
+        .await
+        .map(|r| (ContentType::XML, r))
+        .map_err(|e| ErrorResponse::BadRequest(e.to_string()))
 }
 
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Routes", |rocket| async {
         rocket
-            .mount(
-                "/api/feeds",
-                routes![list, create, read, update, delete, destroy],
-            )
+            .mount("/api/feeds", routes![list, create, read, update, delete, destroy])
             .mount("/api/fetch", routes![fetch])
+            .mount("/api/rss", routes![rss])
     })
 }
