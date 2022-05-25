@@ -1,16 +1,14 @@
 use std::io::Cursor;
 
 use anyhow::Result;
-use feed_merger::FeedSource;
 use rocket::http::hyper::body::Buf;
 use xmltree::{Element, XMLNode};
 
 use crate::model::FeedInfo;
-use crate::util::feed_parser_v2::FeedDocument;
+use crate::util::feed_parser::FeedDocument;
 
 mod feed_merger;
-mod feed_merger_v2;
-mod feed_parser_v2;
+mod feed_parser;
 
 pub async fn fetch_rss_info(url: &str, limit: usize) -> Result<FeedInfo> {
     let resp = reqwest::get(url).await?;
