@@ -35,8 +35,6 @@ mod tests {
     use std::fs::File;
     use std::io::{BufReader, Cursor, Read};
 
-    use rocket::form::validate::range;
-
     use super::*;
 
     const PATH: &str = "./src/tests/data/";
@@ -51,14 +49,21 @@ mod tests {
         }
 
         let result = merger.build()?;
-        {
-            use std::io::{BufWriter, Write};
-            let file = File::create(format!("{PATH}/merged.xml"))?;
-            let mut writer = BufWriter::new(file);
-            writer.write_all(result.as_slice())?;
-            writer.flush()?;
-        }
 
+        // Uncomment following lines to generate result files
+        // {
+        //     use std::io::{BufWriter, Write};
+        //     let file = File::create(format!("{PATH}/merged.xml"))?;
+        //     let mut writer = BufWriter::new(file);
+        //     writer.write_all(result.as_slice())?;
+        //     writer.flush()?;
+        // }
+
+        let expected = fs::read_to_string(format!("{PATH}/merged.xml"))?;
+
+        // NOTE: only checked length because the text representation changes every time,
+        // perhaps caused by the HashMap of attributed
+        assert_eq!(expected.len(), result.len());
         Ok(())
     }
 }

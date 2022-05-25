@@ -149,8 +149,7 @@ mod tests {
 
     fn test_xml(name: &str) -> Result<()> {
         let result = {
-            let file = File::open(format!("{PATH}/{name}.xml"))?;
-            let data = read_to_string(file)?;
+            let data = fs::read_to_string(format!("{PATH}/{name}.xml"))?;
             let feed_info = FeedDocument::parse(data.as_bytes())?.with_limit(25).read_info()?;
             serde_json::to_string_pretty(&feed_info).unwrap()
         };
@@ -164,13 +163,7 @@ mod tests {
         //     writer.flush()?;
         // }
 
-        let expected = {
-            let file = File::open(format!("{PATH}/{name}.result.json"))?;
-            let mut reader = BufReader::new(file);
-            let mut result = String::new();
-            reader.read_to_string(&mut result)?;
-            result
-        };
+        let expected = fs::read_to_string(format!("{PATH}/{name}.result.json"))?;
         assert_eq!(expected, result);
         Ok(())
     }
