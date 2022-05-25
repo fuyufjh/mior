@@ -33,15 +33,21 @@ impl fmt::Display for InvalidTagError {
 
 #[derive(Debug)]
 pub struct FeedDocument {
-    doc: Element,
+    root_node: Element,
 
     limit: usize,
 }
 
 impl FeedDocument {
     pub fn parse(data: &[u8]) -> Result<Self> {
-        let doc = Element::parse(data)?;
-        Ok(Self { doc, limit: usize::MAX })
+        let root_node = Element::parse(data)?;
+        if root_node.name != "rss" {
+            return Err(TagNotFoundError("rss").into());
+        }
+        Ok(Self {
+            root_node,
+            limit: usize::MAX,
+        })
     }
 
     pub fn with_limit(mut self, limit: usize) -> Self {
@@ -50,11 +56,8 @@ impl FeedDocument {
     }
 
     pub fn read_info(&self) -> Result<FeedInfo> {
-        if self.doc.name != "rss" {
-            return Err(TagNotFoundError("rss").into());
-        }
         let node_channel = self
-            .doc
+            .root_node
             .get_child("channel")
             .ok_or_else(|| TagNotFoundError("channel"))?;
 
@@ -98,10 +101,30 @@ impl FeedDocument {
             .into_owned();
         Ok(FeedItem { title, link })
     }
+
+    pub fn into_item_nodes(mut self) -> Result<Vec<XMLNode>> {
+        let node_channel = self
+            .root_node
+            .take_child("channel")
+            .ok_or_else(|| TagNotFoundError("channel"))?;
+
+        let items: Vec<_> = node_channel
+            .children
+            .into_iter()
+            .flat_map(|node| match node {
+                XMLNode::Element(ref e) if e.name == "item" => Some(node),
+                _ => None,
+            })
+            .take(self.limit)
+            .collect();
+
+        Ok(items)
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
     use std::fs::File;
     use std::io::{read_to_string, BufReader, Read};
 
