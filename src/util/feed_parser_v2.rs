@@ -133,13 +133,13 @@ mod tests {
         };
 
         // Uncomment following lines to generate result files
-        {
-            use std::io::{BufWriter, Write};
-            let file = File::create(format!("{PATH}/{name}.result.json"))?;
-            let mut writer = BufWriter::new(file);
-            writer.write_all(result.as_bytes())?;
-            writer.flush()?;
-        }
+        // {
+        //     use std::io::{BufWriter, Write};
+        //     let file = File::create(format!("{PATH}/{name}.result.json"))?;
+        //     let mut writer = BufWriter::new(file);
+        //     writer.write_all(result.as_bytes())?;
+        //     writer.flush()?;
+        // }
 
         let expected = {
             let file = File::open(format!("{PATH}/{name}.result.json"))?;
