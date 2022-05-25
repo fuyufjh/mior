@@ -4,7 +4,7 @@ use rocket::fairing::AdHoc;
 use rocket::futures;
 use rocket::http::ContentType;
 use rocket::response::status::{BadRequest, Created};
-use rocket::response::{Debug, Responder};
+use rocket::response::Responder;
 use rocket::serde::json::Json;
 use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::{sqlx, Connection};
@@ -118,8 +118,8 @@ enum ErrorResponse {
     BadRequest(String),
 }
 
-#[get("/")]
-async fn rss(mut db: Connection<Db>) -> Result<(ContentType, Vec<u8>), ErrorResponse> {
+#[get("/?<token>")]
+async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8>), ErrorResponse> {
     let feeds: Vec<SourceFeed> = sqlx::query!("SELECT id, name, url, keywords FROM feeds")
         .fetch(&mut *db)
         .map_ok(|r| SourceFeed {
@@ -144,6 +144,6 @@ pub fn stage() -> AdHoc {
         rocket
             .mount("/api/feeds", routes![list, create, read, update, delete, destroy])
             .mount("/api/fetch", routes![fetch])
-            .mount("/api/rss", routes![rss])
+            .mount("/rss", routes![rss])
     })
 }

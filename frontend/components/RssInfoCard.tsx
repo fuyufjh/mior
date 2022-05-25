@@ -14,7 +14,12 @@ import CloseIcon from '@mui/icons-material/Close';
 export default function RssInfoCard() {
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
-  const url: string = "https://rss-merger.dev/rss?token=hJDvbRjGnohAZZsYp2tBv";
+  const [url, setUrl] = React.useState("");
+  React.useEffect(() => {
+    // The `window` object here must be used inside of `useEffect`
+    setUrl(window.location.origin + "/rss?token=hJDvbRjGnohAZZsYp2tBv");
+  }, [])
+
   const onClickCopy = () => {
     navigator.clipboard.writeText(url);
     setSnackbarOpen(true);
@@ -33,7 +38,7 @@ export default function RssInfoCard() {
               fullWidth
               disabled
               id="rss-url"
-              defaultValue={url}
+              value={url}
               size="small"
               InputProps={{
                 endAdornment: <IconButton onClick={onClickCopy} edge='end'>

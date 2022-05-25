@@ -1,5 +1,4 @@
 use anyhow::Result;
-use xmltree::{Element, XMLNode};
 
 use crate::model::FeedInfo;
 use crate::util::feed_merger::FeedMerger;
