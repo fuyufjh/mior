@@ -9,21 +9,11 @@ use rocket::serde::json::Json;
 use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::{sqlx, Connection};
 
-use crate::model::FeedInfo;
+use crate::model::{FeedInfo, SourceFeed};
 use crate::util::{fetch_rss_info, merge_feeds_data};
 use crate::Db;
 
 type Result<T, E = rocket::response::Debug<sqlx::Error>> = std::result::Result<T, E>;
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde(crate = "rocket::serde")]
-struct SourceFeed {
-    #[serde(skip_deserializing, skip_serializing_if = "Option::is_none")]
-    id: Option<i64>,
-    name: String,
-    url: String,
-    keywords: String,
-}
 
 #[post("/", data = "<feed>")]
 async fn create(mut db: Connection<Db>, feed: Json<SourceFeed>) -> Result<Created<()>> {
@@ -132,8 +122,7 @@ async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8
         .await
         .map_err(|e| ErrorResponse::InternalError(e.to_string()))?;
 
-    let urls: Vec<_> = feeds.iter().map(|feed| feed.url.as_str()).collect();
-    merge_feeds_data(urls)
+    merge_feeds_data(&feeds)
         .await
         .map(|r| (ContentType::XML, r))
         .map_err(|e| ErrorResponse::BadRequest(e.to_string()))

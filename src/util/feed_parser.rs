@@ -32,6 +32,8 @@ pub struct FeedDocument {
     root_node: Element,
 
     limit: usize,
+
+    keywords: Vec<String>,
 }
 
 impl FeedDocument {
@@ -43,11 +45,17 @@ impl FeedDocument {
         Ok(Self {
             root_node,
             limit: usize::MAX,
+            keywords: Vec::new(),
         })
     }
 
     pub fn with_limit(mut self, limit: usize) -> Self {
         self.limit = limit;
+        self
+    }
+
+    pub fn with_keywords(mut self, keywords: Vec<String>) -> Self {
+        self.keywords = keywords;
         self
     }
 
@@ -63,6 +71,7 @@ impl FeedDocument {
                 _ => None,
             })
             .take(self.limit)
+            .filter(|e| self.filter_by_keywords(e))
             .map(Self::read_item)
             .try_collect()?;
 
@@ -108,10 +117,30 @@ impl FeedDocument {
                 XMLNode::Element(ref e) if e.name == "item" => Some(node),
                 _ => None,
             })
+            .filter(|node| {
+                if let XMLNode::Element(ref e) = node {
+                    self.filter_by_keywords(e)
+                } else {
+                    unreachable!()
+                }
+            })
             .take(self.limit)
             .collect();
 
         Ok(items)
+    }
+
+    fn filter_by_keywords(&self, e: &Element) -> bool {
+        if self.keywords.is_empty() {
+            return true;
+        }
+        if let Some(c) = e.get_child("title") {
+            if let Some(t) = c.get_text() {
+                return self.keywords.iter().all(|w| t.contains(w));
+            }
+        }
+        // Simply returns false for elements without title
+        return false;
     }
 }
 

@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use crate::model::FeedInfo;
+use crate::model::{FeedInfo, SourceFeed};
 use crate::util::feed_merger::FeedMerger;
 use crate::util::feed_parser::FeedDocument;
 
@@ -15,14 +15,23 @@ pub async fn fetch_rss_info(url: &str, _limit: usize) -> Result<FeedInfo> {
     Ok(feed_info)
 }
 
-pub async fn merge_feeds_data(urls: Vec<&str>) -> Result<Vec<u8>> {
+pub async fn merge_feeds_data(feeds: &[SourceFeed]) -> Result<Vec<u8>> {
     let mut merger = FeedMerger::new();
-    for url in urls {
-        let resp = reqwest::get(url).await?;
+    for feed in feeds {
+        let resp = reqwest::get(&feed.url).await?;
         let text = resp.bytes().await?;
-        let doc = FeedDocument::parse(text.as_ref())?;
+        let keywords = split_keywords(&feed.keywords);
+        let doc = FeedDocument::parse(text.as_ref())?.with_keywords(keywords);
         merger.append(doc)?;
     }
     let out = merger.build()?;
     Ok(out)
+}
+
+fn split_keywords(keywords: &str) -> Vec<String> {
+    keywords
+        .split(" ")
+        .filter(|s| !s.is_empty())
+        .map(|s| s.to_owned())
+        .collect()
 }

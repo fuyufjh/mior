@@ -19,3 +19,13 @@ pub struct FeedInfo {
     pub meta: FeedMeta,
     pub items: Vec<FeedItem>,
 }
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct SourceFeed {
+    #[serde(skip_deserializing, skip_serializing_if = "Option::is_none")]
+    pub id: Option<i64>,
+    pub name: String,
+    pub url: String,
+    pub keywords: String,
+}
