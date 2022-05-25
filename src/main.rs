@@ -1,3 +1,6 @@
+#![feature(iterator_try_collect)]
+#![feature(io_read_to_string)]
+
 #[macro_use]
 extern crate rocket;
 

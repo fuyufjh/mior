@@ -12,6 +12,7 @@ anyhow = "1"
 quick-xml = "0.22"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
+xmltree = "0.10"
 
 [dependencies.sqlx]
 version = "0.5.1"

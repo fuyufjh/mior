@@ -31,13 +31,7 @@ where
                     break self.parse_channel();
                 }
                 Ok(Event::Eof) => break Err(anyhow!("Tag <channel> not found")),
-                Err(e) => {
-                    break Err(anyhow!(
-                        "Error at position {}: {:?}",
-                        self.reader.buffer_position(),
-                        e
-                    ))
-                }
+                Err(e) => break Err(anyhow!("Error at position {}: {:?}", self.reader.buffer_position(), e)),
                 _ => (),
             }
         }
@@ -65,13 +59,7 @@ where
                     break;
                 }
                 Ok(Event::Eof) => return Err(anyhow!("Tag <channel> not closed")),
-                Err(e) => {
-                    return Err(anyhow!(
-                        "Error at position {}: {:?}",
-                        self.reader.buffer_position(),
-                        e
-                    ))
-                }
+                Err(e) => return Err(anyhow!("Error at position {}: {:?}", self.reader.buffer_position(), e)),
                 _ => (),
             }
         }
@@ -94,13 +82,7 @@ where
                 },
                 Ok(Event::End(ref e)) if e.name() == b"item" => break Ok(feed_item),
                 Ok(Event::Eof) => break Err(anyhow!("Tag <item> not closed")),
-                Err(e) => {
-                    break Err(anyhow!(
-                        "Error at position {}: {:?}",
-                        self.reader.buffer_position(),
-                        e
-                    ))
-                }
+                Err(e) => break Err(anyhow!("Error at position {}: {:?}", self.reader.buffer_position(), e)),
                 _ => (),
             }
         }
@@ -112,16 +94,8 @@ where
             Ok(Event::Text(e)) => e.unescape_and_decode(&self.reader)?,
             Ok(Event::CData(e)) => String::from_utf8(e.to_vec())?,
             Ok(Event::End(ref e)) if e.name() == tag => return Ok("".to_string()),
-            Err(e) => {
-                return Err(anyhow!(
-                    "Error at position {}: {:?}",
-                    self.reader.buffer_position(),
-                    e
-                ))
-            }
-            Ok(Event::Eof) => {
-                return Err(anyhow!("Tag <{}> not closed", String::from_utf8_lossy(tag)))
-            }
+            Err(e) => return Err(anyhow!("Error at position {}: {:?}", self.reader.buffer_position(), e)),
+            Ok(Event::Eof) => return Err(anyhow!("Tag <{}> not closed", String::from_utf8_lossy(tag))),
             _ => return Err(anyhow!("Text not found")),
         };
         self.reader.read_to_end(tag, &mut buf)?;

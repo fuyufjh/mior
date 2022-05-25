@@ -9,6 +9,7 @@ use crate::model::FeedInfo;
 
 mod feed_merger;
 mod feed_parser;
+mod feed_parser_v2;
 
 pub async fn fetch_rss_info(url: &str, limit: usize) -> Result<FeedInfo> {
     let resp = reqwest::get(url).await?;
