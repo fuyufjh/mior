@@ -6,7 +6,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { XMLParser } from 'fast-xml-parser'
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import FeedPreviewTable from './FeedPreviewTable';

@@ -4,10 +4,13 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+import LoginDialog from './LoginDialog';
+import RegisterDialog from './RegisterDialog';
 
 export default function ButtonAppBar() {
+  const [openLogin, setOpenLogin] = React.useState(false);
+  const [openRegister, setOpenRegister] = React.useState(false);
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -15,7 +18,22 @@ export default function ButtonAppBar() {
           <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
             mior
           </Typography>
-          <Button color="inherit">Login</Button>
+          <Button color="inherit" onClick={() => setOpenLogin(true)}>Login</Button>
+          <LoginDialog
+            open={openLogin}
+            handleClose={() => setOpenLogin(false)}
+            switchToRegister={() => {
+              setOpenLogin(false);
+              setOpenRegister(true);
+            }}
+          />
+          <RegisterDialog
+            open={openRegister}
+            handleClose={() => setOpenRegister(false)}
+            switchToLogin={() => {
+              setOpenRegister(false); setOpenLogin(true);
+            }}
+          />
         </Toolbar>
       </AppBar>
     </Box>

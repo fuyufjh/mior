@@ -1,6 +1,0 @@
-CREATE TABLE feeds (
-     id INTEGER PRIMARY KEY AUTOINCREMENT,
-     name VARCHAR NOT NULL,
-     url VARCHAR NOT NULL,
-     keywords VARCHAR NOT NULL
-);

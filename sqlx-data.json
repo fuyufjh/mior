@@ -46,6 +46,16 @@
     },
     "query": "SELECT id, name, url, keywords FROM feeds"
   },
+  "32f30f41aca9db5203f137fc4726ee1a6da73975daba5bd3e5a42ab92e854b63": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "INSERT INTO users (email, nickname, password) VALUES (?, ?, ?)"
+  },
   "453b7db176be8d6cc91a870a2e41746e606a5f73a0f63683b7bc832327f1c466": {
     "describe": {
       "columns": [

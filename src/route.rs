@@ -8,7 +8,7 @@ use rocket::response::Responder;
 use rocket::serde::json::Json;
 use rocket_db_pools::{sqlx, Connection};
 
-use crate::model::{FeedInfo, SourceFeed};
+use crate::model::{FeedInfo, SourceFeed, User};
 use crate::util::{fetch_rss_info, merge_feeds_data};
 use crate::Db;
 
@@ -91,12 +91,26 @@ async fn destroy(mut db: Connection<Db>) -> Result<()> {
     Ok(())
 }
 
-#[get("/?<url>")]
+#[get("/fetch?<url>")]
 async fn fetch(url: &str) -> Result<Json<FeedInfo>, BadRequest<String>> {
     fetch_rss_info(url, 100)
         .await
         .map(Json)
         .map_err(|e| BadRequest(Some(e.to_string())))
+}
+
+#[post("/register", data = "<user>")]
+async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()>> {
+    sqlx::query!(
+        "INSERT INTO users (email, nickname, password) VALUES (?, ?, ?)",
+        user.email,
+        user.nickname,
+        user.password
+    )
+    .execute(&mut *db)
+    .await?;
+
+    Ok(Created::new("/").body(()))
 }
 
 #[derive(Responder)]
@@ -107,7 +121,7 @@ enum ErrorResponse {
     BadRequest(String),
 }
 
-#[get("/?<token>")]
+#[get("/rss?<token>")]
 async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8>), ErrorResponse> {
     let _ = token; // token is not used now. avoid warning
 
@@ -133,7 +147,8 @@ pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Routes", |rocket| async {
         rocket
             .mount("/api/feeds", routes![list, create, read, update, delete, destroy])
-            .mount("/api/fetch", routes![fetch])
-            .mount("/rss", routes![rss])
+            .mount("/api/", routes![register])
+            .mount("/api/", routes![fetch])
+            .mount("/", routes![rss])
     })
 }

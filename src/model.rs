@@ -32,3 +32,13 @@ pub struct SourceFeed {
     pub url: String,
     pub keywords: String,
 }
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct User {
+    #[serde(skip_deserializing, skip_serializing_if = "Option::is_none")]
+    pub id: Option<i64>,
+    pub nickname: String,
+    pub email: String,
+    pub password: String,
+}
