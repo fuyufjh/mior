@@ -6,6 +6,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { useSnackbar } from 'notistack';
 
 interface Props {
   open: boolean;
@@ -20,6 +21,8 @@ export default function RegisterDialog(props: Props) {
   const [nickname, setNickname] = React.useState("");
   const [password, setPassword] = React.useState("");
 
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
   function handleRegister(): void {
     fetch("/api/register", {
       method: 'POST',
@@ -32,11 +35,23 @@ export default function RegisterDialog(props: Props) {
         password: password,
       }),
     })
-      .then((result: any) => {
-        console.log(result);
+      .then((result: Response) => {
+        if (result.status == 200) {
+          enqueueSnackbar("Registered successfully.", {
+            variant: 'success',
+          });
+        } else {
+          result.text().then((text) => {
+            enqueueSnackbar(text, {
+              variant: 'error',
+            });
+          });
+        }
       })
       .catch((error: any) => {
-        console.error(error);
+        enqueueSnackbar(error.toString(), {
+          variant: 'error',
+        });
       });
     handleClose();
   }
