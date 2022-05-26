@@ -897,6 +897,7 @@ dependencies = [
  "reqwest",
  "rocket",
  "rocket_db_pools",
+ "sha2",
  "sqlx",
  "xmltree",
 ]

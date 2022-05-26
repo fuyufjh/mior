@@ -9,6 +9,7 @@ rocket_db_pools = { version = "0.1.0-rc.2", features = ["sqlx_sqlite"] }
 reqwest = { version = "0.11" }
 anyhow = "1"
 xmltree = "0.10"
+sha2 = "0.10"
 
 [dependencies.sqlx]
 version = "0.5.1"

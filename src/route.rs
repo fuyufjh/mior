@@ -101,16 +101,27 @@ async fn fetch(url: &str) -> Result<Json<FeedInfo>, BadRequest<String>> {
 
 #[post("/register", data = "<user>")]
 async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()>> {
+    let password = hash_password(&user.password);
     sqlx::query!(
         "INSERT INTO users (email, nickname, password) VALUES (?, ?, ?)",
         user.email,
         user.nickname,
-        user.password
+        password
     )
     .execute(&mut *db)
     .await?;
 
     Ok(Created::new("/").body(()))
+}
+
+const SALT: &str = "merge into one rss!";
+
+fn hash_password(password: &str) -> Vec<u8> {
+    use sha2::Digest;
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(password.as_bytes());
+    hasher.update(SALT.as_bytes());
+    hasher.finalize().to_vec()
 }
 
 #[derive(Responder)]
