@@ -7,6 +7,9 @@ use rocket::response::status::{BadRequest, Created};
 use rocket::response::Responder;
 use rocket::serde::json::Json;
 use rocket_db_pools::{sqlx, Connection};
+use sqlx::error::DatabaseError;
+use sqlx::sqlite::SqliteError;
+use sqlx::Error::Database;
 
 use crate::model::{FeedInfo, SourceFeed, User};
 use crate::util::{fetch_rss_info, merge_feeds_data};
@@ -100,7 +103,7 @@ async fn fetch(url: &str) -> Result<Json<FeedInfo>, BadRequest<String>> {
 }
 
 #[post("/register", data = "<user>")]
-async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()>> {
+async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()>, ErrorResponse> {
     let password = hash_password(&user.password);
     sqlx::query!(
         "INSERT INTO users (email, nickname, password) VALUES (?, ?, ?)",
@@ -109,7 +112,16 @@ async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()
         password
     )
     .execute(&mut *db)
-    .await?;
+    .await
+    .map_err(|e| {
+        if let Database(ref err) = e {
+            let err = err.downcast_ref::<SqliteError>();
+            if err.code().unwrap() == "2067" {
+                return ErrorResponse::BadRequest("Email was registered".to_owned());
+            }
+        }
+        return ErrorResponse::InternalError(e.to_string());
+    })?;
 
     Ok(Created::new("/").body(()))
 }
