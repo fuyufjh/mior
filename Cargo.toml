@@ -7,9 +7,7 @@ edition = "2021"
 rocket = { version = "0.5.0-rc.2", features = ["json"] }
 rocket_db_pools = { version = "0.1.0-rc.2", features = ["sqlx_sqlite"] }
 reqwest = { version = "0.11" }
-roxmltree = "0.14"
 anyhow = "1"
-quick-xml = "0.22"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
 xmltree = "0.10"
