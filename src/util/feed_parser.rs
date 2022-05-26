@@ -148,6 +148,8 @@ impl FeedDocument {
 mod tests {
     use std::fs;
 
+    use rocket::serde::json::serde_json;
+
     use super::*;
 
     const PATH: &str = "./src/tests/data/";

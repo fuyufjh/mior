@@ -54,6 +54,7 @@ mod tests {
 
         // Uncomment following lines to generate result files
         // {
+        //     use std::fs::File;
         //     use std::io::{BufWriter, Write};
         //     let file = File::create(format!("{PATH}/merged.xml"))?;
         //     let mut writer = BufWriter::new(file);

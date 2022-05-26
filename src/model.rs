@@ -1,7 +1,8 @@
-use serde::{Deserialize, Serialize};
+use rocket::serde::{Deserialize, Serialize};
 
 /// One article in RSS Feed
 #[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
 pub struct FeedItem {
     pub title: String,
     pub link: String,
@@ -9,12 +10,14 @@ pub struct FeedItem {
 
 /// Metadata of Feed
 #[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
 pub struct FeedMeta {
     pub title: String,
 }
 
 /// Metadata and items of Feed
 #[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
 pub struct FeedInfo {
     pub meta: FeedMeta,
     pub items: Vec<FeedItem>,

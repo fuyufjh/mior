@@ -6,7 +6,6 @@ use rocket::http::ContentType;
 use rocket::response::status::{BadRequest, Created};
 use rocket::response::Responder;
 use rocket::serde::json::Json;
-use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::{sqlx, Connection};
 
 use crate::model::{FeedInfo, SourceFeed};
@@ -110,6 +109,8 @@ enum ErrorResponse {
 
 #[get("/?<token>")]
 async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8>), ErrorResponse> {
+    let _ = token; // token is not used now. avoid warning
+
     let feeds: Vec<SourceFeed> = sqlx::query!("SELECT id, name, url, keywords FROM feeds")
         .fetch(&mut *db)
         .map_ok(|r| SourceFeed {
