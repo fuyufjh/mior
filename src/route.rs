@@ -2,16 +2,17 @@ use futures::future::TryFutureExt;
 use futures::stream::TryStreamExt;
 use rocket::fairing::AdHoc;
 use rocket::futures;
-use rocket::http::ContentType;
+use rocket::http::{ContentType, Cookie, CookieJar};
 use rocket::response::status::{BadRequest, Created};
 use rocket::response::Responder;
-use rocket::serde::json::Json;
+use rocket::serde::json::{serde_json, Json};
+use rocket::serde::Serialize;
 use rocket_db_pools::{sqlx, Connection};
 use sqlx::error::DatabaseError;
 use sqlx::sqlite::SqliteError;
 use sqlx::Error::Database;
 
-use crate::model::{FeedInfo, SourceFeed, User};
+use crate::model::{FeedInfo, LoginForm, SourceFeed, User};
 use crate::util::{fetch_rss_info, merge_feeds_data};
 use crate::Db;
 
@@ -104,12 +105,16 @@ async fn fetch(url: &str) -> Result<Json<FeedInfo>, BadRequest<String>> {
 
 #[post("/register", data = "<user>")]
 async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()>, ErrorResponse> {
-    let password = hash_password(&user.password);
+    let password = user
+        .password
+        .as_ref()
+        .ok_or_else(|| ErrorResponse::BadRequest("Password is None".to_owned()))?;
+    let hashed_password = hash_password(password);
     sqlx::query!(
         "INSERT INTO users (email, nickname, password) VALUES (?, ?, ?)",
         user.email,
         user.nickname,
-        password
+        hashed_password
     )
     .execute(&mut *db)
     .await
@@ -124,6 +129,28 @@ async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()
     })?;
 
     Ok(Created::new("/").body(()))
+}
+
+#[post("/login", data = "<user>")]
+async fn login(mut db: Connection<Db>, user: Json<LoginForm>, cookie: &CookieJar<'_>) -> Result<(), ErrorResponse> {
+    let password = hash_password(&user.password);
+    let user = sqlx::query!(
+        "SELECT id, email, nickname FROM users WHERE email = ? AND password = ?",
+        user.email,
+        password
+    )
+    .fetch_one(&mut *db)
+    .await
+    .map(|r| User {
+        id: r.id,
+        nickname: r.nickname,
+        email: r.email,
+        password: None,
+    })
+    .map_err(|e| ErrorResponse::InternalError(e.to_string()))?;
+
+    cookie.add_private(Cookie::new("user", serde_json::to_string(&user).unwrap()));
+    Ok(())
 }
 
 const SALT: &str = "merge into one rss!";

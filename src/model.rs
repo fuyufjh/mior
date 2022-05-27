@@ -40,5 +40,13 @@ pub struct User {
     pub id: Option<i64>,
     pub nickname: String,
     pub email: String,
+    #[serde(skip_deserializing, skip_serializing_if = "Option::is_none")]
+    pub password: Option<String>,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct LoginForm {
+    pub email: String,
     pub password: String,
 }
