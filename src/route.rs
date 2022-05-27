@@ -8,7 +8,6 @@ use rocket::serde::json::{serde_json, Json};
 use rocket_db_pools::{sqlx, Connection};
 use sqlx::error::DatabaseError;
 use sqlx::sqlite::SqliteError;
-use sqlx::Error::Database;
 
 use crate::error::{Error, Result};
 use crate::model::{FeedInfo, LoginForm, SourceFeed, User};
@@ -98,7 +97,7 @@ async fn fetch(url: &str) -> Result<Json<FeedInfo>> {
 }
 
 #[post("/register", data = "<user>")]
-async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()>> {
+async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<()> {
     let password = user
         .password
         .as_ref()
@@ -113,7 +112,7 @@ async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()
     .execute(&mut *db)
     .await
     .map_err(|e| {
-        if let Database(ref err) = e {
+        if let sqlx::Error::Database(ref err) = e {
             let err = err.downcast_ref::<SqliteError>();
             if err.code().unwrap() == "2067" {
                 return Error::Custom("Email was registered".to_owned());
@@ -122,7 +121,7 @@ async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()
         return e.into();
     })?;
 
-    Ok(Created::new("/").body(()))
+    Ok(())
 }
 
 #[post("/login", data = "<user>")]
@@ -140,6 +139,10 @@ async fn login(mut db: Connection<Db>, user: Json<LoginForm>, cookie: &CookieJar
         nickname: r.nickname,
         email: r.email,
         password: None,
+    })
+    .map_err(|e| match e {
+        sqlx::Error::RowNotFound => Error::Custom("Incorrect user or password".to_owned()),
+        _ => e.into(),
     })?;
 
     cookie.add_private(Cookie::new("user", serde_json::to_string(&user).unwrap()));
