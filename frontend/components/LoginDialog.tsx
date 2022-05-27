@@ -4,7 +4,6 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useSnackbar } from 'notistack';
 
@@ -39,8 +38,8 @@ export default function LoginDialog(props: Props) {
             variant: 'success',
           });
         } else {
-          result.text().then((text) => {
-            enqueueSnackbar(text, {
+          result.text().then((message) => {
+            enqueueSnackbar(message, {
               variant: 'error',
             });
           });

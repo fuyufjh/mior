@@ -1,17 +1,14 @@
 import * as React from 'react';
 import type { NextPage } from 'next';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Link from '../src/Link';
-import ProTip from '../src/ProTip';
-import Copyright from '../src/Copyright';
 import FeedList from '../components/FeedList'
 import AddFeedDialog from '../components/EditFeedDialog';
 import RssInfoCard from '../components/RssInfoCard'
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import FeedInfo from '../models/FeedInfo';
+import { useSnackbar } from 'notistack';
 
 const EMPTY_FEED: FeedInfo = { id: -1, name: '', url: '', keywords: '' }
 
@@ -26,6 +23,7 @@ const Home: NextPage = () => {
   const [editCounter, setEditCounter] = React.useState(1);
   const refresh = () => setEditCounter(prev => prev + 1);
 
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const addFeed = () => {
     setEditingFeed(EMPTY_FEED);
@@ -38,11 +36,19 @@ const Home: NextPage = () => {
 
   React.useEffect(() => {
     fetch("/api/feeds")
-      .then(res => res.json())
-      .then((result: any) => {
-        console.log(result);
-        const feeds = result as FeedInfo[];
-        setFeeds(feeds);
+      .then(res => {
+        if (res.status == 200) {
+          res.json().then((result: any) => {
+            const feeds = result as FeedInfo[];
+            setFeeds(feeds);
+          })
+        } else {
+          res.text().then((message) => {
+            enqueueSnackbar(message, {
+              variant: 'error',
+            });
+          })
+        }
       })
       .catch((error: any) => {
         console.error(error);

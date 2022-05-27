@@ -25,6 +25,9 @@ pub enum Error {
     #[error("database error")]
     Database(#[from] sqlx::error::Error),
 
+    #[error("unauthorized")]
+    Unauthorized,
+
     #[error("{0}")]
     Custom(String),
 }
@@ -37,10 +40,12 @@ impl<'r, 'o: 'r> response::Responder<'r, 'o> for Error {
         use response::status::*;
         use response::*;
         match self {
-            Error::MalformedFeed(e) => Custom(Status::FailedDependency, e.to_string()).respond_to(request),
-            Error::FetchFeed(e) => Custom(Status::FailedDependency, e.to_string()).respond_to(request),
+            Error::MalformedFeed(_) | Error::FetchFeed(_) => {
+                Custom(Status::FailedDependency, self.to_string()).respond_to(request)
+            }
             Error::Database(e) => Debug(e).respond_to(request),
             Error::Custom(e) => BadRequest(Some(e)).respond_to(request),
+            Error::Unauthorized => Unauthorized(Some(self.to_string())).respond_to(request),
         }
     }
 }

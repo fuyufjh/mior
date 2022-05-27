@@ -1,10 +1,11 @@
 use futures::future::TryFutureExt;
 use futures::stream::TryStreamExt;
 use rocket::fairing::AdHoc;
-use rocket::futures;
 use rocket::http::{ContentType, Cookie, CookieJar};
+use rocket::request::FromRequest;
 use rocket::response::status::Created;
 use rocket::serde::json::{serde_json, Json};
+use rocket::{futures, request, Request};
 use rocket_db_pools::{sqlx, Connection};
 use sqlx::error::DatabaseError;
 use sqlx::sqlite::SqliteError;
@@ -29,7 +30,7 @@ async fn create(mut db: Connection<Db>, feed: Json<SourceFeed>) -> Result<Create
 }
 
 #[get("/")]
-async fn list(mut db: Connection<Db>) -> Result<Json<Vec<SourceFeed>>> {
+async fn list(mut db: Connection<Db>, user: User) -> Result<Json<Vec<SourceFeed>>> {
     let feeds = sqlx::query!("SELECT id, name, url, keywords FROM feeds")
         .fetch(&mut *db)
         .map_ok(|r| SourceFeed {
@@ -157,6 +158,20 @@ fn hash_password(password: &str) -> Vec<u8> {
     hasher.update(password.as_bytes());
     hasher.update(SALT.as_bytes());
     hasher.finalize().to_vec()
+}
+
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for User {
+    type Error = std::convert::Infallible;
+
+    async fn from_request(request: &'r Request<'_>) -> request::Outcome<User, Self::Error> {
+        use crate::rocket::outcome::IntoOutcome;
+        request
+            .cookies()
+            .get_private("user")
+            .and_then(|cookie| serde_json::from_str(cookie.value()).unwrap())
+            .or_forward(())
+    }
 }
 
 #[get("/rss?<token>")]
