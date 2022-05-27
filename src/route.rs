@@ -3,21 +3,17 @@ use futures::stream::TryStreamExt;
 use rocket::fairing::AdHoc;
 use rocket::futures;
 use rocket::http::{ContentType, Cookie, CookieJar};
-use rocket::response::status::{BadRequest, Created};
-use rocket::response::Responder;
+use rocket::response::status::Created;
 use rocket::serde::json::{serde_json, Json};
-use rocket::serde::Serialize;
 use rocket_db_pools::{sqlx, Connection};
 use sqlx::error::DatabaseError;
 use sqlx::sqlite::SqliteError;
 use sqlx::Error::Database;
 
-use crate::error::Error;
+use crate::error::{Error, Result};
 use crate::model::{FeedInfo, LoginForm, SourceFeed, User};
 use crate::util::{fetch_rss_info, merge_feeds_data};
 use crate::Db;
-
-type Result<T> = std::result::Result<T, Error>;
 
 #[post("/", data = "<feed>")]
 async fn create(mut db: Connection<Db>, feed: Json<SourceFeed>) -> Result<Created<()>> {
@@ -182,7 +178,7 @@ pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Routes", |rocket| async {
         rocket
             .mount("/api/feeds", routes![list, create, read, update, delete, destroy])
-            .mount("/api/", routes![register])
+            .mount("/api/", routes![register, login])
             .mount("/api/", routes![fetch])
             .mount("/", routes![rss])
     })

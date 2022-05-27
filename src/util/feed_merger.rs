@@ -44,12 +44,12 @@ mod tests {
     const PATH: &str = "./src/tests/data/";
 
     #[test]
-    fn test_merge_feeds() -> Result<()> {
+    fn test_merge_feeds() {
         let mut merger = FeedMerger::new();
         for name in ["1", "2", "3", "4", "5"] {
-            let data = fs::read_to_string(format!("{PATH}/{name}.xml"))?;
-            let doc = FeedDocument::parse(data.as_bytes())?.with_limit(20);
-            merger.append(doc)?;
+            let data = fs::read_to_string(format!("{PATH}/{name}.xml")).unwrap();
+            let doc = FeedDocument::parse(data.as_bytes()).unwrap().with_limit(20);
+            merger.append(doc).unwrap();
         }
 
         let result = merger.build();
@@ -64,11 +64,10 @@ mod tests {
         //     writer.flush()?;
         // }
 
-        let expected = fs::read_to_string(format!("{PATH}/merged.xml"))?;
+        let expected = fs::read_to_string(format!("{PATH}/merged.xml")).unwrap();
 
         // NOTE: only checked length because the text representation changes every time,
         // perhaps caused by the HashMap of attributed
         assert_eq!(expected.len(), result.len());
-        Ok(())
     }
 }

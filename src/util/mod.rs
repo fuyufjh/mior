@@ -1,9 +1,7 @@
-use crate::error::Error;
+use crate::error::Result;
 use crate::model::{FeedInfo, SourceFeed};
 use crate::util::feed_merger::FeedMerger;
 use crate::util::feed_parser::FeedDocument;
-
-type Result<T> = std::result::Result<T, Error>;
 
 mod feed_merger;
 mod feed_parser;

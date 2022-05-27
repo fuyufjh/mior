@@ -1,6 +1,3 @@
-use std::fmt;
-use std::fmt::Formatter;
-
 use xmltree::{Element, XMLNode};
 
 use crate::error::MalformedFeedError;
@@ -141,7 +138,7 @@ mod tests {
     macro_rules! test_case {
         ($name:literal, $test_func:ident) => {
             #[test]
-            fn $test_func() -> Result<()> {
+            fn $test_func() {
                 test_xml($name)
             }
         };
@@ -153,24 +150,27 @@ mod tests {
     test_case!("4", test_xml_4);
     test_case!("5", test_xml_5);
 
-    fn test_xml(name: &str) -> Result<()> {
+    fn test_xml(name: &str) {
         let result = {
-            let data = fs::read_to_string(format!("{PATH}/{name}.xml"))?;
-            let feed_info = FeedDocument::parse(data.as_bytes())?.with_limit(25).read_info()?;
+            let data = fs::read_to_string(format!("{PATH}/{name}.xml")).unwrap();
+            let feed_info = FeedDocument::parse(data.as_bytes())
+                .unwrap()
+                .with_limit(25)
+                .read_info()
+                .unwrap();
             serde_json::to_string_pretty(&feed_info).unwrap()
         };
 
         // Uncomment following lines to generate result files
         // {
         //     use std::io::{BufWriter, Write};
-        //     let file = File::create(format!("{PATH}/{name}.result.json"))?;
+        //     let file = File::create(format!("{PATH}/{name}.result.json")).unwrap();
         //     let mut writer = BufWriter::new(file);
-        //     writer.write_all(result.as_bytes())?;
-        //     writer.flush()?;
+        //     writer.write_all(result.as_bytes()).unwrap();
+        //     writer.flush().unwrap();
         // }
 
-        let expected = fs::read_to_string(format!("{PATH}/{name}.result.json"))?;
+        let expected = fs::read_to_string(format!("{PATH}/{name}.result.json")).unwrap();
         assert_eq!(expected, result);
-        Ok(())
     }
 }
