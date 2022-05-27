@@ -12,11 +12,12 @@ use sqlx::error::DatabaseError;
 use sqlx::sqlite::SqliteError;
 use sqlx::Error::Database;
 
+use crate::error::Error;
 use crate::model::{FeedInfo, LoginForm, SourceFeed, User};
 use crate::util::{fetch_rss_info, merge_feeds_data};
 use crate::Db;
 
-type Result<T, E = rocket::response::Debug<sqlx::Error>> = std::result::Result<T, E>;
+type Result<T> = std::result::Result<T, Error>;
 
 #[post("/", data = "<feed>")]
 async fn create(mut db: Connection<Db>, feed: Json<SourceFeed>) -> Result<Created<()>> {
@@ -96,19 +97,16 @@ async fn destroy(mut db: Connection<Db>) -> Result<()> {
 }
 
 #[get("/fetch?<url>")]
-async fn fetch(url: &str) -> Result<Json<FeedInfo>, BadRequest<String>> {
-    fetch_rss_info(url, 100)
-        .await
-        .map(Json)
-        .map_err(|e| BadRequest(Some(e.to_string())))
+async fn fetch(url: &str) -> Result<Json<FeedInfo>> {
+    fetch_rss_info(url, 100).await.map(Json)
 }
 
 #[post("/register", data = "<user>")]
-async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()>, ErrorResponse> {
+async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()>> {
     let password = user
         .password
         .as_ref()
-        .ok_or_else(|| ErrorResponse::BadRequest("Password is None".to_owned()))?;
+        .ok_or_else(|| Error::Custom("Password is None".to_owned()))?;
     let hashed_password = hash_password(password);
     sqlx::query!(
         "INSERT INTO users (email, nickname, password) VALUES (?, ?, ?)",
@@ -122,17 +120,17 @@ async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<Created<()
         if let Database(ref err) = e {
             let err = err.downcast_ref::<SqliteError>();
             if err.code().unwrap() == "2067" {
-                return ErrorResponse::BadRequest("Email was registered".to_owned());
+                return Error::Custom("Email was registered".to_owned());
             }
         }
-        return ErrorResponse::InternalError(e.to_string());
+        return e.into();
     })?;
 
     Ok(Created::new("/").body(()))
 }
 
 #[post("/login", data = "<user>")]
-async fn login(mut db: Connection<Db>, user: Json<LoginForm>, cookie: &CookieJar<'_>) -> Result<(), ErrorResponse> {
+async fn login(mut db: Connection<Db>, user: Json<LoginForm>, cookie: &CookieJar<'_>) -> Result<()> {
     let password = hash_password(&user.password);
     let user = sqlx::query!(
         "SELECT id, email, nickname FROM users WHERE email = ? AND password = ?",
@@ -146,8 +144,7 @@ async fn login(mut db: Connection<Db>, user: Json<LoginForm>, cookie: &CookieJar
         nickname: r.nickname,
         email: r.email,
         password: None,
-    })
-    .map_err(|e| ErrorResponse::InternalError(e.to_string()))?;
+    })?;
 
     cookie.add_private(Cookie::new("user", serde_json::to_string(&user).unwrap()));
     Ok(())
@@ -163,16 +160,8 @@ fn hash_password(password: &str) -> Vec<u8> {
     hasher.finalize().to_vec()
 }
 
-#[derive(Responder)]
-enum ErrorResponse {
-    #[response(status = 500)]
-    InternalError(String),
-    #[response(status = 400)]
-    BadRequest(String),
-}
-
 #[get("/rss?<token>")]
-async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8>), ErrorResponse> {
+async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8>)> {
     let _ = token; // token is not used now. avoid warning
 
     let feeds: Vec<SourceFeed> = sqlx::query!("SELECT id, name, url, keywords FROM feeds")
@@ -184,13 +173,9 @@ async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8
             keywords: r.keywords,
         })
         .try_collect::<Vec<_>>()
-        .await
-        .map_err(|e| ErrorResponse::InternalError(e.to_string()))?;
+        .await?;
 
-    merge_feeds_data(&feeds)
-        .await
-        .map(|r| (ContentType::XML, r))
-        .map_err(|e| ErrorResponse::BadRequest(e.to_string()))
+    merge_feeds_data(&feeds).await.map(|r| (ContentType::XML, r))
 }
 
 pub fn stage() -> AdHoc {

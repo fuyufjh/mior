@@ -58,12 +58,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "anyhow"
-version = "1.0.57"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08f9b8508dccb7687a1d6c4ce66b2b0ecef467c94667de27d8d7fe1f8d2a9cdc"
-
-[[package]]
 name = "async-stream"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -893,12 +887,12 @@ dependencies = [
 name = "mior-backend"
 version = "0.0.1"
 dependencies = [
- "anyhow",
  "reqwest",
  "rocket",
  "rocket_db_pools",
  "sha2",
  "sqlx",
+ "thiserror",
  "xmltree",
 ]
 

@@ -1,8 +1,9 @@
-use anyhow::Result;
-
+use crate::error::Error;
 use crate::model::{FeedInfo, SourceFeed};
 use crate::util::feed_merger::FeedMerger;
 use crate::util::feed_parser::FeedDocument;
+
+type Result<T> = std::result::Result<T, Error>;
 
 mod feed_merger;
 mod feed_parser;
@@ -24,7 +25,7 @@ pub async fn merge_feeds_data(feeds: &[SourceFeed]) -> Result<Vec<u8>> {
         let doc = FeedDocument::parse(text.as_ref())?.with_keywords(keywords);
         merger.append(doc)?;
     }
-    let out = merger.build()?;
+    let out = merger.build();
     Ok(out)
 }
 

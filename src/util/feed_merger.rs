@@ -1,7 +1,9 @@
-use anyhow::Result;
 use xmltree::{Element, XMLNode};
 
+use crate::error::Error;
 use crate::util::feed_parser::FeedDocument;
+
+type Result<T> = std::result::Result<T, Error>;
 
 pub struct FeedMerger {
     root_node: Element,
@@ -26,10 +28,10 @@ impl FeedMerger {
         Ok(())
     }
 
-    pub fn build(&self) -> Result<Vec<u8>> {
+    pub fn build(&self) -> Vec<u8> {
         let mut buf = Vec::new();
-        self.root_node.write(&mut buf)?;
-        Ok(buf)
+        self.root_node.write(&mut buf).unwrap();
+        buf
     }
 }
 
@@ -50,7 +52,7 @@ mod tests {
             merger.append(doc)?;
         }
 
-        let result = merger.build()?;
+        let result = merger.build();
 
         // Uncomment following lines to generate result files
         // {

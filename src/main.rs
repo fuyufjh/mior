@@ -9,6 +9,7 @@ use rocket::fs::FileServer;
 use rocket::{fairing, Build, Rocket};
 use rocket_db_pools::{sqlx, Database};
 
+mod error;
 mod model;
 mod route;
 mod util;

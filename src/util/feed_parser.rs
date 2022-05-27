@@ -1,31 +1,12 @@
 use std::fmt;
 use std::fmt::Formatter;
 
-use anyhow::Result;
 use xmltree::{Element, XMLNode};
 
+use crate::error::MalformedFeedError;
 use crate::model::{FeedInfo, FeedItem, FeedMeta};
 
-#[derive(Debug, Clone)]
-struct TagNotFoundError(&'static str);
-
-impl fmt::Display for TagNotFoundError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "tag <{}> not found", self.0)
-    }
-}
-
-#[derive(Debug, Clone)]
-struct InvalidTagError(&'static str);
-
-impl std::error::Error for TagNotFoundError {}
-impl std::error::Error for InvalidTagError {}
-
-impl fmt::Display for InvalidTagError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "invalid value in tag <{}>", self.0)
-    }
-}
+pub type Result<T> = std::result::Result<T, MalformedFeedError>;
 
 #[derive(Debug)]
 pub struct FeedDocument {
@@ -40,7 +21,7 @@ impl FeedDocument {
     pub fn parse(data: &[u8]) -> Result<Self> {
         let root_node = Element::parse(data)?;
         if root_node.name != "rss" {
-            return Err(TagNotFoundError("rss").into());
+            return Err(MalformedFeedError::TagNotFound("rss"));
         }
         Ok(Self {
             root_node,
@@ -60,7 +41,10 @@ impl FeedDocument {
     }
 
     pub fn read_info(&self) -> Result<FeedInfo> {
-        let node_channel = self.root_node.get_child("channel").ok_or(TagNotFoundError("channel"))?;
+        let node_channel = self
+            .root_node
+            .get_child("channel")
+            .ok_or(MalformedFeedError::TagNotFound("channel"))?;
 
         let meta = Self::read_meta(node_channel)?;
         let items = node_channel
@@ -81,9 +65,9 @@ impl FeedDocument {
     fn read_meta(node_channel: &Element) -> Result<FeedMeta> {
         let title = node_channel
             .get_child("title")
-            .ok_or(TagNotFoundError("title"))?
+            .ok_or(MalformedFeedError::TagNotFound("title"))?
             .get_text()
-            .ok_or(InvalidTagError("title"))?
+            .ok_or(MalformedFeedError::InvalidTag("title"))?
             .into_owned();
         Ok(FeedMeta { title })
     }
@@ -91,15 +75,15 @@ impl FeedDocument {
     fn read_item(node_item: &Element) -> Result<FeedItem> {
         let title = node_item
             .get_child("title")
-            .ok_or(TagNotFoundError("title"))?
+            .ok_or(MalformedFeedError::TagNotFound("title"))?
             .get_text()
-            .ok_or(InvalidTagError("title"))?
+            .ok_or(MalformedFeedError::InvalidTag("title"))?
             .into_owned();
         let link = node_item
             .get_child("link")
-            .ok_or(TagNotFoundError("link"))?
+            .ok_or(MalformedFeedError::TagNotFound("link"))?
             .get_text()
-            .ok_or(InvalidTagError("link"))?
+            .ok_or(MalformedFeedError::InvalidTag("link"))?
             .into_owned();
         Ok(FeedItem { title, link })
     }
@@ -108,7 +92,7 @@ impl FeedDocument {
         let node_channel = self
             .root_node
             .take_child("channel")
-            .ok_or(TagNotFoundError("channel"))?;
+            .ok_or(MalformedFeedError::TagNotFound("channel"))?;
 
         let items: Vec<_> = node_channel
             .children
