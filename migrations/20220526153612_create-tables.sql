@@ -3,6 +3,7 @@ CREATE TABLE feeds (
     name       VARCHAR  NOT NULL,
     url        VARCHAR  NOT NULL,
     keywords   VARCHAR  NOT NULL,
+    user_id    INTEGER NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
