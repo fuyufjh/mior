@@ -6,13 +6,12 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
 import FeedPreviewTable from './FeedPreviewTable';
 import FeedItem from '../models/FeedItem';
 import Tooltip from '@mui/material/Tooltip';
 import Zoom from '@mui/material/Zoom';
 import FeedInfo from '../models/FeedInfo';
+import { useSnackbar } from 'notistack';
 
 function filterItems(items: FeedItem[], keywords: string | string[]): FeedItem[] {
   if (typeof keywords === 'string') {
@@ -40,14 +39,11 @@ export default function EditFeedDialog(props: Props) {
   const { open, handleClose, feed, setFeed, refreshFeedList } = props;
   const isNew = feed.id === -1;
 
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
   const setUrl = (url: string) => setFeed(prev => ({ ...prev, url }));
   const setName = (name: string) => setFeed(prev => ({ ...prev, name }));
   const setKeywords = (keywords: string) => setFeed(prev => ({ ...prev, keywords }));
-
-  // Control the snackbar of sucess or failure
-  const [showFetchOk, setShowFetchOk] = React.useState(false);
-  const [showFetchErr, setShowFetchErr] = React.useState(false);
-  const [errMsg, setErrMsg] = React.useState("");
 
   // Control the Preview dialog
   const [showPreview, setShowPreview] = React.useState(false);
@@ -69,11 +65,14 @@ export default function EditFeedDialog(props: Props) {
             link: item.link,
           }));
           setFetchedItems(items);
-          setShowFetchOk(true);
+          enqueueSnackbar("Fetched RSS feed successfully.", {
+            variant: 'success'
+          })
         })
         .catch((error: any) => {
-          setErrMsg(String(error));
-          setShowFetchErr(true);
+          enqueueSnackbar(error.toString(), {
+            variant: 'error',
+          });
           setFetchedItems([]);
           console.error(error);
         })
@@ -84,19 +83,6 @@ export default function EditFeedDialog(props: Props) {
 
   // Filter fetched items by user-specified keywords
   const previewItems = filterItems(fetchedItems, feed.keywords);
-
-  let onCloseFetchOkSnackbar = (event: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setShowFetchOk(false);
-  };
-  let onCloseFetchErrSnackbar = (event: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setShowFetchErr(false);
-  };
 
   const handleSubmit = () => {
     let endpoint: string;
@@ -182,22 +168,6 @@ export default function EditFeedDialog(props: Props) {
           <Button onClick={() => setShowPreview(false)}>Dismiss</Button>
         </DialogActions>
       </Dialog>
-
-      <Snackbar
-        open={showFetchOk}
-        autoHideDuration={3000}
-        onClose={onCloseFetchOkSnackbar}
-      >
-        <Alert severity="success">Fetched RSS feed successfully.</Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={showFetchErr}
-        autoHideDuration={3000}
-        onClose={onCloseFetchErrSnackbar}
-      >
-        <Alert severity="error">{errMsg}</Alert>
-      </Snackbar>
     </>
   );
 }
