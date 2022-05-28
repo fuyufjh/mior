@@ -14,6 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import { useSnackbar } from 'notistack';
 import { useRouter } from 'next/router'
+import Link from 'next/link';
 
 interface Props {
   user: User | null,
@@ -63,15 +64,27 @@ export default function MyAppBar(props: Props) {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
-            mior
-          </Typography>
+          <Link href={'/'}>
+            <Typography variant="h5" component="div" sx={{
+              fontWeight: 500,
+              cursor: 'pointer',
+              paddingRight: 2,
+            }}>
+              mior
+            </Typography>
+          </Link>
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            <Link href={'/my'}>
+              <Button sx={{ my: 2, color: 'white', display: 'block' }}>
+                My Feeds
+              </Button>
+            </Link>
+          </Box>
           {user
-            ? <IconButton>
+            ? <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ p: 0 }}>
               <Avatar
                 alt={user.nickname}
                 src={gravatar.url(user.email, { d: '404' })}
-                onClick={(e) => setAnchorEl(e.currentTarget)}
               />
             </IconButton>
             : <Button
