@@ -24,7 +24,7 @@ export default function RssInfoCard(props: Props) {
   React.useEffect(() => {
     // The `window` object here must be used inside of `useEffect`
     setUrl(window.location.origin + `/rss?token=${token}`);
-  }, [])
+  }, [token])
 
   const onClickCopy = () => {
     navigator.clipboard.writeText(url);

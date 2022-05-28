@@ -19,9 +19,6 @@ interface Props {
 
 const MyFeeds: NextPage<Props> = (props: Props) => {
   const { user } = props;
-  if (!user) {
-    return <></>
-  }
 
   const [feeds, setFeeds] = React.useState([] as FeedInfo[]);
 
@@ -63,6 +60,11 @@ const MyFeeds: NextPage<Props> = (props: Props) => {
         console.error(error);
       })
   }, [editCounter])
+
+  // TODO: make it more user-friendly
+  if (!user) {
+    return <></>
+  }
 
   return (
     <>
