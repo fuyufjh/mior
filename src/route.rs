@@ -184,6 +184,12 @@ async fn user_no_auth(user: User) -> Result<Json<User>> {
     Err(Error::Unauthorized)
 }
 
+#[post("/logout")]
+async fn logout(cookie: &CookieJar<'_>) -> Result<()> {
+    cookie.remove_private(Cookie::named("user"));
+    Ok(())
+}
+
 #[get("/rss?<token>")]
 async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8>)> {
     let _ = token; // token is not used now. avoid warning
@@ -206,7 +212,7 @@ pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Routes", |rocket| async {
         rocket
             .mount("/api/feeds", routes![list, create, read, update, delete, destroy])
-            .mount("/api/", routes![register, login, user, user_no_auth])
+            .mount("/api/", routes![register, login, user, user_no_auth, logout])
             .mount("/api/", routes![fetch])
             .mount("/", routes![rss])
     })
