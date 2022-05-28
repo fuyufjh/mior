@@ -9,10 +9,19 @@ import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import FeedInfo from '../models/FeedInfo';
 import { useSnackbar } from 'notistack';
+import User from '../models/User';
 
 const EMPTY_FEED: FeedInfo = { id: -1, name: '', url: '', keywords: '' }
 
-const MyFeeds: NextPage = () => {
+interface Props {
+  user: User,
+}
+
+const MyFeeds: NextPage<Props> = (props: Props) => {
+  const { user } = props;
+  if (!user) {
+    return <></>
+  }
 
   const [feeds, setFeeds] = React.useState([] as FeedInfo[]);
 
@@ -61,7 +70,7 @@ const MyFeeds: NextPage = () => {
         <Box sx={{
           my: 2,
         }}>
-          <RssInfoCard />
+          <RssInfoCard token={user.token} />
         </Box>
       </Container>
 

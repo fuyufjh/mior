@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use crate::error::Result;
 use crate::model::{FeedInfo, SourceFeed};
 use crate::util::feed_merger::FeedMerger;
@@ -33,4 +35,12 @@ fn split_keywords(keywords: &str) -> Vec<String> {
         .filter(|s| !s.is_empty())
         .map(|s| s.to_owned())
         .collect()
+}
+
+pub fn gen_rand_token() -> String {
+    let bytes: Vec<u8> = rand::thread_rng()
+        .sample_iter(&rand::distributions::Alphanumeric)
+        .take(16)
+        .collect();
+    String::from_utf8(bytes).unwrap()
 }

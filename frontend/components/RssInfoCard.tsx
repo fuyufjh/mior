@@ -11,13 +11,19 @@ import IconButton from '@mui/material/IconButton';
 import Snackbar from '@mui/material/Snackbar';
 import CloseIcon from '@mui/icons-material/Close';
 
-export default function RssInfoCard() {
+interface Props {
+  token: string;
+}
+
+export default function RssInfoCard(props: Props) {
+  const { token } = props;
+
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
   const [url, setUrl] = React.useState("");
   React.useEffect(() => {
     // The `window` object here must be used inside of `useEffect`
-    setUrl(window.location.origin + "/rss?token=hJDvbRjGnohAZZsYp2tBv");
+    setUrl(window.location.origin + `/rss?token=${token}`);
   }, [])
 
   const onClickCopy = () => {

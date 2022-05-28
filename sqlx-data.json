@@ -1,6 +1,170 @@
 {
   "db": "SQLite",
-  "0c2697407313b3ff0f81697f6372bedc0876860f6d30a81183e5515688cee012": {
+  "0080e0dab47ecc03fdbe90c4297c4e4181674db70283fbc46d6ebb2e3e813f92": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "nickname",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "token",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "INSERT INTO users (email, nickname, password, token) VALUES (?, ?, ?, ?) RETURNING id, email, nickname, token"
+  },
+  "399e0ef3f8268dd5d70363b2cc615b0adb3d5623034f90935f4968b9649f93fc": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "url",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "keywords",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT feeds.id AS id, name, url, keywords FROM feeds, users WHERE feeds.user_id = users.id AND users.token = ?"
+  },
+  "3fae7ce24f855d9d8ccbadcd84b07e3947ee06050fcc8705f7818e8deb44807a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "url",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "keywords",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT id, name, url, keywords FROM feeds WHERE user_id = ?"
+  },
+  "a5e0dd2be5b5d3deeaa65eef91cdc7c5ccd66b19859df4efeb43a31e56d2e2ff": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "email",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "nickname",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "token",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "SELECT id, email, nickname, token FROM users WHERE email = ? AND password = ?"
+  },
+  "a954fdd370ef525a9cef6672fe58e30f4b1948827002d9f98ade56186ffc2bf7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "DELETE FROM feeds WHERE id = ? AND user_id = ?"
+  },
+  "ba248e486dc02945284834e3884863141017ba97673483263c4d4f3251008e8b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 5
+      }
+    },
+    "query": "UPDATE feeds SET name = ?, url = ?, keywords = ? WHERE id = ? AND user_id = ?"
+  },
+  "f49e45cbc8c46c32b525bb06533b5a2f7b4f0c08ce77bd134f134de7a19c375f": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -8,118 +172,6 @@
         "Right": 4
       }
     },
-    "query": "UPDATE feeds SET name = ?, url = ?, keywords = ? WHERE id = ?"
-  },
-  "1214da8d20177dddf6bffc4275c5dbfe12e3b29d3b3024f432dd0301c6f0f64e": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "url",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "keywords",
-          "ordinal": 3,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "SELECT id, name, url, keywords FROM feeds"
-  },
-  "32f30f41aca9db5203f137fc4726ee1a6da73975daba5bd3e5a42ab92e854b63": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 3
-      }
-    },
-    "query": "INSERT INTO users (email, nickname, password) VALUES (?, ?, ?)"
-  },
-  "453b7db176be8d6cc91a870a2e41746e606a5f73a0f63683b7bc832327f1c466": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "url",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "keywords",
-          "ordinal": 3,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 1
-      }
-    },
-    "query": "SELECT id, name, url, keywords FROM feeds WHERE id = ?"
-  },
-  "4e9aba0a76b14a4705c39add5e696e45112d413085494bec7d3c588b0dafb014": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 3
-      }
-    },
-    "query": "INSERT INTO feeds (name, url, keywords) VALUES (?, ?, ?)"
-  },
-  "5f051331441e7a11fed4181bc2f4110e5fb404665726686e37a8082b80832e7c": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "DELETE FROM feeds"
-  },
-  "807a2bb62595176125bb633da5d3fe5f733ad525f5103fb476601dcad4e88031": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 1
-      }
-    },
-    "query": "DELETE FROM feeds WHERE id = ?"
+    "query": "INSERT INTO feeds (name, url, keywords, user_id) VALUES (?, ?, ?, ?)"
   }
 }

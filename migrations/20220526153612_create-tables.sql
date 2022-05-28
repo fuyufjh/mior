@@ -3,7 +3,7 @@ CREATE TABLE feeds (
     name       VARCHAR  NOT NULL,
     url        VARCHAR  NOT NULL,
     keywords   VARCHAR  NOT NULL,
-    user_id    INTEGER NOT NULL,
+    user_id    INTEGER  NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -18,11 +18,14 @@ CREATE TABLE users (
     email      VARCHAR  NOT NULL,
     nickname   VARCHAR  NOT NULL,
     password   VARCHAR  NOT NULL,
+    token      VARCHAR  NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE UNIQUE INDEX users_email_uindex ON users (email);
+
+CREATE UNIQUE INDEX users_token_uindex ON users (token);
 
 CREATE TRIGGER users_update AFTER UPDATE ON users
 BEGIN

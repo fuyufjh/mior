@@ -1,4 +1,3 @@
-use futures::future::TryFutureExt;
 use futures::stream::TryStreamExt;
 use rocket::fairing::AdHoc;
 use rocket::http::{ContentType, Cookie, CookieJar};
@@ -83,12 +82,16 @@ async fn register(mut db: Connection<Db>, user: Json<User>, cookie: &CookieJar<'
         .as_ref()
         .ok_or_else(|| Error::Custom("Password is None".to_owned()))?;
     let hashed_password = hash_password(password);
+
+    let token = crate::util::gen_rand_token();
+
     let user = sqlx::query!(
-        "INSERT INTO users (email, nickname, password) VALUES (?, ?, ?) \
-        RETURNING id, email, nickname",
+        "INSERT INTO users (email, nickname, password, token) VALUES (?, ?, ?, ?) \
+        RETURNING id, email, nickname, token",
         user.email,
         user.nickname,
-        hashed_password
+        hashed_password,
+        token
     )
     .fetch_one(&mut *db)
     .await
@@ -97,6 +100,7 @@ async fn register(mut db: Connection<Db>, user: Json<User>, cookie: &CookieJar<'
         nickname: r.nickname,
         email: r.email,
         password: None,
+        token: Some(r.token),
     })
     .map_err(|e| {
         if let sqlx::Error::Database(ref err) = e {
@@ -116,16 +120,17 @@ async fn register(mut db: Connection<Db>, user: Json<User>, cookie: &CookieJar<'
 async fn login(mut db: Connection<Db>, user: Json<LoginForm>, cookie: &CookieJar<'_>) -> Result<Json<User>> {
     let password = hash_password(&user.password);
     let user = sqlx::query!(
-        "SELECT id, email, nickname FROM users WHERE email = ? AND password = ?",
+        "SELECT id, email, nickname, token FROM users WHERE email = ? AND password = ?",
         user.email,
         password
     )
     .fetch_one(&mut *db)
     .await
     .map(|r| User {
-        id: r.id,
+        id: Some(r.id),
         nickname: r.nickname,
         email: r.email,
+        token: Some(r.token),
         password: None,
     })
     .map_err(|e| match e {
@@ -167,7 +172,7 @@ async fn user(user: User) -> Result<Json<User>> {
 }
 
 #[get("/user", rank = 2)]
-async fn user_no_auth(user: User) -> Result<Json<User>> {
+async fn user_no_auth() -> Result<Json<User>> {
     Err(Error::Unauthorized)
 }
 
@@ -179,18 +184,21 @@ async fn logout(cookie: &CookieJar<'_>) -> Result<()> {
 
 #[get("/rss?<token>")]
 async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8>)> {
-    let _ = token; // token is not used now. avoid warning
-
-    let feeds: Vec<SourceFeed> = sqlx::query!("SELECT id, name, url, keywords FROM feeds")
-        .fetch(&mut *db)
-        .map_ok(|r| SourceFeed {
-            id: Some(r.id),
-            name: r.name,
-            url: r.url,
-            keywords: r.keywords,
-        })
-        .try_collect::<Vec<_>>()
-        .await?;
+    let feeds: Vec<SourceFeed> = sqlx::query!(
+        "SELECT feeds.id AS id, name, url, keywords \
+        FROM feeds, users \
+        WHERE feeds.user_id = users.id AND users.token = ?",
+        token
+    )
+    .fetch(&mut *db)
+    .map_ok(|r| SourceFeed {
+        id: Some(r.id),
+        name: r.name,
+        url: r.url,
+        keywords: r.keywords,
+    })
+    .try_collect::<Vec<_>>()
+    .await?;
 
     merge_feeds_data(&feeds).await.map(|r| (ContentType::XML, r))
 }
