@@ -37,7 +37,7 @@ export default function FeedList(props: Props) {
   return (
     <List>
       {feeds.map((feed: FeedInfo) => (
-        <ListItem key={feed.id}>
+        <ListItem key={feed.id} sx={{ paddingX: '8px' }}>
           <ListItemAvatar>
             <Avatar>
               <RssFeedIcon />
