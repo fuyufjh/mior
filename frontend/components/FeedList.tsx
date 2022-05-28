@@ -9,6 +9,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import RssFeedIcon from '@mui/icons-material/RssFeed';
 import FeedInfo from '../models/FeedInfo';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import { Box } from '@mui/material';
 
 interface Props {
   feeds: FeedInfo[];
@@ -35,19 +37,7 @@ export default function FeedList(props: Props) {
   return (
     <List>
       {feeds.map((feed: FeedInfo) => (
-        <ListItem
-          key={feed.id}
-          secondaryAction={
-            <>
-              <IconButton aria-label="edit" onClick={() => openEditDialog(feed)}>
-                <EditIcon />
-              </IconButton>
-              <IconButton edge="end" aria-label="delete" onClick={() => deleteFeed(feed.id)}>
-                <DeleteIcon />
-              </IconButton>
-            </>
-          }
-        >
+        <ListItem key={feed.id}>
           <ListItemAvatar>
             <Avatar>
               <RssFeedIcon />
@@ -56,9 +46,21 @@ export default function FeedList(props: Props) {
           <ListItemText
             primary={feed.name}
             secondary={feed.url}
+            sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
           />
+          <IconButton aria-label="edit" onClick={() => openEditDialog(feed)}>
+            <EditIcon />
+          </IconButton>
+          <IconButton edge="end" aria-label="delete" onClick={() => deleteFeed(feed.id)}>
+            <DeleteIcon />
+          </IconButton>
         </ListItem>
       ))}
+      <Box sx={{ height: '56px' }}></Box>
     </List >
   );
 }
