@@ -174,6 +174,16 @@ impl<'r> FromRequest<'r> for User {
     }
 }
 
+#[get("/user")]
+async fn user(user: User) -> Result<Json<User>> {
+    Ok(Json(user))
+}
+
+#[get("/user", rank = 2)]
+async fn user_no_auth(user: User) -> Result<Json<User>> {
+    Err(Error::Unauthorized)
+}
+
 #[get("/rss?<token>")]
 async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8>)> {
     let _ = token; // token is not used now. avoid warning
@@ -196,7 +206,7 @@ pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Routes", |rocket| async {
         rocket
             .mount("/api/feeds", routes![list, create, read, update, delete, destroy])
-            .mount("/api/", routes![register, login])
+            .mount("/api/", routes![register, login, user, user_no_auth])
             .mount("/api/", routes![fetch])
             .mount("/", routes![rss])
     })

@@ -6,8 +6,12 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import LoginDialog from './LoginDialog';
 import RegisterDialog from './RegisterDialog';
+import User from '../models/User';
+import Avatar from '@mui/material/Avatar';
+import gravatar from 'gravatar'
 
 interface Props {
+  user: User | null,
   openLogin: boolean;
   setOpenLogin: (open: boolean) => void;
   openRegister: boolean;
@@ -15,7 +19,7 @@ interface Props {
 }
 
 export default function ButtonAppBar(props: Props) {
-  const { openLogin, setOpenLogin, openRegister, setOpenRegister } = props;
+  const { user, openLogin, setOpenLogin, openRegister, setOpenRegister } = props;
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -24,7 +28,10 @@ export default function ButtonAppBar(props: Props) {
           <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
             mior
           </Typography>
-          <Button color="inherit" onClick={() => setOpenLogin(true)}>Login</Button>
+          {user
+            ? <Avatar alt={user.nickname} src={gravatar.url(user.email, { d: '404' })} />
+            : <Button color="inherit" onClick={() => setOpenLogin(true)}>Login</Button>
+          }
           <LoginDialog
             open={openLogin}
             handleClose={() => setOpenLogin(false)}

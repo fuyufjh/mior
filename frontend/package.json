@@ -17,12 +17,14 @@
     "@mui/icons-material": "^5.8.0",
     "@mui/material": "^5.8.0",
     "fast-xml-parser": "^4.0.7",
+    "gravatar": "^1.8.2",
     "next": "^12.1.6",
     "notistack": "^2.0.5",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
   },
   "devDependencies": {
+    "@types/gravatar": "^1.8.3",
     "@types/node": "latest",
     "@types/react": "latest",
     "eslint": "latest",
