@@ -5,7 +5,6 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { Button } from '@mui/material';
-import LoginDialog from '../components/LoginDialog';
 
 interface Props {
   setOpenRegister: (open: boolean) => void;

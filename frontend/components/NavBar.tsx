@@ -73,7 +73,7 @@ export default function MyAppBar(props: Props) {
               mior
             </Typography>
           </Link>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Box sx={{ flexGrow: 1, display: { md: 'flex' } }}>
             <Link href={'/my'}>
               <Button sx={{ my: 2, color: 'white', display: 'block' }}>
                 My Feeds
