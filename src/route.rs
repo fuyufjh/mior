@@ -98,20 +98,27 @@ async fn fetch(url: &str) -> Result<Json<FeedInfo>> {
 }
 
 #[post("/register", data = "<user>")]
-async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<()> {
+async fn register(mut db: Connection<Db>, user: Json<User>, cookie: &CookieJar<'_>) -> Result<Json<User>> {
     let password = user
         .password
         .as_ref()
         .ok_or_else(|| Error::Custom("Password is None".to_owned()))?;
     let hashed_password = hash_password(password);
-    sqlx::query!(
-        "INSERT INTO users (email, nickname, password) VALUES (?, ?, ?)",
+    let user = sqlx::query!(
+        "INSERT INTO users (email, nickname, password) VALUES (?, ?, ?) \
+        RETURNING id, email, nickname",
         user.email,
         user.nickname,
         hashed_password
     )
-    .execute(&mut *db)
+    .fetch_one(&mut *db)
     .await
+    .map(|r| User {
+        id: Some(r.id),
+        nickname: r.nickname,
+        email: r.email,
+        password: None,
+    })
     .map_err(|e| {
         if let sqlx::Error::Database(ref err) = e {
             let err = err.downcast_ref::<SqliteError>();
@@ -122,11 +129,12 @@ async fn register(mut db: Connection<Db>, user: Json<User>) -> Result<()> {
         return e.into();
     })?;
 
-    Ok(())
+    cookie.add_private(Cookie::new("user", serde_json::to_string(&user).unwrap()));
+    Ok(Json(user))
 }
 
 #[post("/login", data = "<user>")]
-async fn login(mut db: Connection<Db>, user: Json<LoginForm>, cookie: &CookieJar<'_>) -> Result<()> {
+async fn login(mut db: Connection<Db>, user: Json<LoginForm>, cookie: &CookieJar<'_>) -> Result<Json<User>> {
     let password = hash_password(&user.password);
     let user = sqlx::query!(
         "SELECT id, email, nickname FROM users WHERE email = ? AND password = ?",
@@ -147,7 +155,7 @@ async fn login(mut db: Connection<Db>, user: Json<LoginForm>, cookie: &CookieJar
     })?;
 
     cookie.add_private(Cookie::new("user", serde_json::to_string(&user).unwrap()));
-    Ok(())
+    Ok(Json(user))
 }
 
 const SALT: &str = "merge into one rss!";

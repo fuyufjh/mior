@@ -7,21 +7,25 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useSnackbar } from 'notistack';
+import { useRouter } from 'next/router'
+import User from '../models/User';
 
 interface Props {
   open: boolean;
   handleClose: () => void;
   switchToLogin: () => void;
+  setUser: (user: User | null) => void;
 }
 
 export default function RegisterDialog(props: Props) {
-  const { open, handleClose, switchToLogin } = props;
+  const { open, handleClose, switchToLogin, setUser } = props;
 
   const [email, setEmail] = React.useState("");
   const [nickname, setNickname] = React.useState("");
   const [password, setPassword] = React.useState("");
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const router = useRouter();
 
   function handleRegister(): void {
     fetch("/api/register", {
@@ -37,8 +41,12 @@ export default function RegisterDialog(props: Props) {
     })
       .then((result: Response) => {
         if (result.status == 200) {
-          enqueueSnackbar("Registered successfully.", {
-            variant: 'success',
+          result.json().then((user: User) => {
+            setUser(user);
+            enqueueSnackbar("Registered successfully.", {
+              variant: 'success',
+            });
+            router.push('/my');
           });
         } else {
           result.text().then((text) => {

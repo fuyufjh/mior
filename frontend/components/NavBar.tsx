@@ -17,6 +17,7 @@ import { useRouter } from 'next/router'
 
 interface Props {
   user: User | null,
+  setUser: (user: User | null) => void;
   openLogin: boolean;
   setOpenLogin: (open: boolean) => void;
   openRegister: boolean;
@@ -24,7 +25,7 @@ interface Props {
 }
 
 export default function MyAppBar(props: Props) {
-  const { user, openLogin, setOpenLogin, openRegister, setOpenRegister } = props;
+  const { user, setUser, openLogin, setOpenLogin, openRegister, setOpenRegister } = props;
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -37,7 +38,8 @@ export default function MyAppBar(props: Props) {
     })
       .then((result: Response) => {
         if (result.status == 200) {
-          enqueueSnackbar("Log out successfully.", {
+          setUser(null);
+          enqueueSnackbar("Logged out successfully.", {
             variant: 'success',
           });
           router.push('/');
@@ -100,6 +102,7 @@ export default function MyAppBar(props: Props) {
               setOpenLogin(false);
               setOpenRegister(true);
             }}
+            setUser={setUser}
           />
           <RegisterDialog
             open={openRegister}
@@ -107,6 +110,7 @@ export default function MyAppBar(props: Props) {
             switchToLogin={() => {
               setOpenRegister(false); setOpenLogin(true);
             }}
+            setUser={setUser}
           />
         </Toolbar>
       </AppBar>

@@ -59,6 +59,7 @@ export default function MyApp(props: MyAppProps) {
             openRegister={openRegister}
             setOpenRegister={setOpenRegister}
             user={user}
+            setUser={setUser}
           />
           <Component
             setOpenRegister={setOpenRegister}

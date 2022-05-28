@@ -7,15 +7,17 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useSnackbar } from 'notistack';
 import { useRouter } from 'next/router'
+import User from '../models/User';
 
 interface Props {
   open: boolean;
   handleClose: () => void;
   switchToRegister: () => void;
+  setUser: (user: User | null) => void;
 }
 
 export default function LoginDialog(props: Props) {
-  const { open, handleClose, switchToRegister } = props;
+  const { open, handleClose, switchToRegister, setUser } = props;
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -36,10 +38,13 @@ export default function LoginDialog(props: Props) {
     })
       .then((result: Response) => {
         if (result.status == 200) {
-          enqueueSnackbar("Login successfully.", {
-            variant: 'success',
+          result.json().then((user: User) => {
+            setUser(user);
+            enqueueSnackbar("Login successfully.", {
+              variant: 'success',
+            });
+            router.push('/my');
           });
-          router.push('/my');
         } else {
           result.text().then((message) => {
             enqueueSnackbar(message, {
