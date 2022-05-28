@@ -16,12 +16,13 @@ use crate::util::{fetch_rss_info, merge_feeds_data};
 use crate::Db;
 
 #[post("/", data = "<feed>")]
-async fn create(mut db: Connection<Db>, feed: Json<SourceFeed>) -> Result<Created<()>> {
+async fn create(mut db: Connection<Db>, user: User, feed: Json<SourceFeed>) -> Result<Created<()>> {
     sqlx::query!(
-        "INSERT INTO feeds (name, url, keywords) VALUES (?, ?, ?)",
+        "INSERT INTO feeds (name, url, keywords, user_id) VALUES (?, ?, ?, ?)",
         feed.name,
         feed.url,
-        feed.keywords
+        feed.keywords,
+        user.id,
     )
     .execute(&mut *db)
     .await?;
@@ -31,7 +32,7 @@ async fn create(mut db: Connection<Db>, feed: Json<SourceFeed>) -> Result<Create
 
 #[get("/")]
 async fn list(mut db: Connection<Db>, user: User) -> Result<Json<Vec<SourceFeed>>> {
-    let feeds = sqlx::query!("SELECT id, name, url, keywords FROM feeds")
+    let feeds = sqlx::query!("SELECT id, name, url, keywords FROM feeds WHERE user_id = ?", user.id)
         .fetch(&mut *db)
         .map_ok(|r| SourceFeed {
             id: Some(r.id),
@@ -45,25 +46,9 @@ async fn list(mut db: Connection<Db>, user: User) -> Result<Json<Vec<SourceFeed>
     Ok(Json(feeds))
 }
 
-#[get("/<id>")]
-async fn read(mut db: Connection<Db>, id: i64) -> Option<Json<SourceFeed>> {
-    sqlx::query!("SELECT id, name, url, keywords FROM feeds WHERE id = ?", id)
-        .fetch_one(&mut *db)
-        .map_ok(|r| {
-            Json(SourceFeed {
-                id: Some(r.id),
-                name: r.name,
-                url: r.url,
-                keywords: r.keywords,
-            })
-        })
-        .await
-        .ok()
-}
-
 #[delete("/<id>")]
-async fn delete(mut db: Connection<Db>, id: i64) -> Result<Option<()>> {
-    let result = sqlx::query!("DELETE FROM feeds WHERE id = ?", id)
+async fn delete(mut db: Connection<Db>, user: User, id: i64) -> Result<Option<()>> {
+    let result = sqlx::query!("DELETE FROM feeds WHERE id = ? AND user_id = ?", id, user.id)
         .execute(&mut *db)
         .await?;
 
@@ -71,25 +56,19 @@ async fn delete(mut db: Connection<Db>, id: i64) -> Result<Option<()>> {
 }
 
 #[post("/<id>", data = "<feed>")]
-async fn update(mut db: Connection<Db>, id: i64, feed: Json<SourceFeed>) -> Result<Option<()>> {
+async fn update(mut db: Connection<Db>, user: User, id: i64, feed: Json<SourceFeed>) -> Result<Option<()>> {
     let result = sqlx::query!(
-        "UPDATE feeds SET name = ?, url = ?, keywords = ? WHERE id = ?",
+        "UPDATE feeds SET name = ?, url = ?, keywords = ? WHERE id = ? AND user_id = ?",
         feed.name,
         feed.url,
         feed.keywords,
-        id
+        id,
+        user.id,
     )
     .execute(&mut *db)
     .await?;
 
     Ok((result.rows_affected() == 1).then(|| ()))
-}
-
-#[delete("/")]
-async fn destroy(mut db: Connection<Db>) -> Result<()> {
-    sqlx::query!("DELETE FROM feeds").execute(&mut *db).await?;
-
-    Ok(())
 }
 
 #[get("/fetch?<url>")]
@@ -219,7 +198,7 @@ async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Routes", |rocket| async {
         rocket
-            .mount("/api/feeds", routes![list, create, read, update, delete, destroy])
+            .mount("/api/feeds", routes![list, create, update, delete])
             .mount("/api/", routes![register, login, user, user_no_auth, logout])
             .mount("/api/", routes![fetch])
             .mount("/", routes![rss])
