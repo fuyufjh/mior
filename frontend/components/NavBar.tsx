@@ -7,9 +7,15 @@ import Button from '@mui/material/Button';
 import LoginDialog from './LoginDialog';
 import RegisterDialog from './RegisterDialog';
 
-export default function ButtonAppBar() {
-  const [openLogin, setOpenLogin] = React.useState(false);
-  const [openRegister, setOpenRegister] = React.useState(false);
+interface Props {
+  openLogin: boolean;
+  setOpenLogin: (open: boolean) => void;
+  openRegister: boolean;
+  setOpenRegister: (open: boolean) => void;
+}
+
+export default function ButtonAppBar(props: Props) {
+  const { openLogin, setOpenLogin, openRegister, setOpenRegister } = props;
 
   return (
     <Box sx={{ flexGrow: 1 }}>

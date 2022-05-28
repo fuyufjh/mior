@@ -6,6 +6,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useSnackbar } from 'notistack';
+import { useRouter } from 'next/router'
 
 interface Props {
   open: boolean;
@@ -20,6 +21,7 @@ export default function LoginDialog(props: Props) {
   const [password, setPassword] = React.useState("");
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const router = useRouter();
 
   function handleLogin(): void {
     fetch("/api/login", {
@@ -37,6 +39,7 @@ export default function LoginDialog(props: Props) {
           enqueueSnackbar("Login successfully.", {
             variant: 'success',
           });
+          router.push('/my');
         } else {
           result.text().then((message) => {
             enqueueSnackbar(message, {

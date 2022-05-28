@@ -19,6 +19,10 @@ interface MyAppProps extends AppProps {
 
 export default function MyApp(props: MyAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+
+  const [openLogin, setOpenLogin] = React.useState(false);
+  const [openRegister, setOpenRegister] = React.useState(false);
+
   return (
     <CacheProvider value={emotionCache}>
       <Head>
@@ -28,8 +32,16 @@ export default function MyApp(props: MyAppProps) {
         <SnackbarProvider maxSnack={3}>
           {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
           <CssBaseline />
-          <NavBar />
-          <Component {...pageProps} />
+          <NavBar
+            openLogin={openLogin}
+            setOpenLogin={setOpenLogin}
+            openRegister={openRegister}
+            setOpenRegister={setOpenRegister}
+          />
+          <Component
+            setOpenRegister={setOpenRegister}
+            {...pageProps}
+          />
         </SnackbarProvider>
       </ThemeProvider>
     </CacheProvider>
