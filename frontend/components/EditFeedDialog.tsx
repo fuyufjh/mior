@@ -54,20 +54,29 @@ export default function EditFeedDialog(props: Props) {
   React.useEffect(() => {
     if (feed.url) {
       fetch(`/api/fetch?url=${encodeURIComponent(feed.url)}`)
-        .then(res => res.json())
-        .then((result: any) => {
-          if (feed.name === "") {
-            setName(result.meta.title);
+        .then(res => {
+          if (res.status == 200) {
+            res.json().then((result: any) => {
+              if (feed.name === "") {
+                setName(result.meta.title);
+              }
+              const items = (result.items as any[]).map((item: any, index: number) => ({
+                index: index,
+                title: item.title,
+                link: item.link,
+              }));
+              setFetchedItems(items);
+              enqueueSnackbar("Fetched RSS feed successfully.", {
+                variant: 'success'
+              })
+            })
+          } else {
+            res.text().then((message) => {
+              enqueueSnackbar(message, {
+                variant: 'error',
+              });
+            })
           }
-          const items = (result.items as any[]).map((item: any, index: number) => ({
-            index: index,
-            title: item.title,
-            link: item.link,
-          }));
-          setFetchedItems(items);
-          enqueueSnackbar("Fetched RSS feed successfully.", {
-            variant: 'success'
-          })
         })
         .catch((error: any) => {
           enqueueSnackbar(error.toString(), {
