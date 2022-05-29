@@ -125,7 +125,6 @@ export default function EditFeedDialog(props: Props) {
             with keywords, which must appear in the title of items.
           </DialogContentText>
           <TextField
-            autoFocus
             margin="dense"
             id="url"
             label="URL"

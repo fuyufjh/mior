@@ -69,7 +69,6 @@ export default function RegisterDialog(props: Props) {
       <DialogTitle>Register</DialogTitle>
       <DialogContent>
         <TextField
-          autoFocus
           id="email"
           label="Email"
           type="email"
@@ -80,7 +79,6 @@ export default function RegisterDialog(props: Props) {
           onChange={(e) => setEmail(e.target.value)}
         />
         <TextField
-          autoFocus
           id="nickname"
           label="Nickname (Optional)"
           fullWidth

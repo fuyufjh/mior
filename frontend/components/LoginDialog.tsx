@@ -66,7 +66,6 @@ export default function LoginDialog(props: Props) {
       <DialogTitle>Login</DialogTitle>
       <DialogContent>
         <TextField
-          autoFocus
           id="email"
           label="Email"
           type="email"
