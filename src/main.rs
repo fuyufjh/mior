@@ -23,7 +23,7 @@ fn rocket() -> _ {
     rocket::build()
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Run Migrations", run_migrations))
-        .mount("/", FileServer::from("./frontend/out"))
+        .mount("/", FileServer::from("./static"))
         .attach(route::stage())
 }
 
