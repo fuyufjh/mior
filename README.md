@@ -2,6 +2,12 @@
 
 _Merge into one RSS_
 
+***mior*** is a lightweight web service to filter and merge multiple RSS feeds into one. It provides a pure web-based,
+responsive user interface to manage the upstream feed sources. A merged RSS is provided to user to
+fetch the merged results, which gathers all filtered items in upstream feeds.
+
+![screenshot](assets/screenshot.png)
+
 ## Development Guide
 
 ### Frontend
@@ -65,3 +71,11 @@ To build into binary in release mode:
 ```bash
 cargo build --release
 ```
+
+### Notes on Local Debug
+
+By default, the backend server listens on http://localhost:8000 and the frontend (Next.js dev server) listens 
+on http://localhost:3000, but the Next.js dev server has been configured to redirect API requests to the backend (see [next.config.js](next.config.js)). 
+
+In practice, we recommend you to debug from the http://localhost:3000 in order to take advantage of the
+[Fast Refresh](https://nextjs.org/docs/basic-features/fast-refresh) feature of Next.js.
