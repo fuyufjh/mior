@@ -20,7 +20,10 @@ pub enum Error {
     MalformedFeed(#[from] MalformedFeedError),
 
     #[error("fetch feed error: {0}")]
-    FetchFeed(#[from] reqwest::Error),
+    FetchFeedRequest(#[from] reqwest::Error),
+
+    #[error("fetch feed error: status: {0}")]
+    FetchFeedStatus(reqwest::StatusCode),
 
     #[error("database error")]
     Database(#[from] sqlx::error::Error),
@@ -40,7 +43,7 @@ impl<'r, 'o: 'r> response::Responder<'r, 'o> for Error {
         use response::status::*;
         use response::*;
         match self {
-            Error::MalformedFeed(_) | Error::FetchFeed(_) => {
+            Error::MalformedFeed(_) | Error::FetchFeedRequest(_) | Error::FetchFeedStatus(_) => {
                 Custom(Status::FailedDependency, self.to_string()).respond_to(request)
             }
             Error::Database(e) => Debug(e).respond_to(request),

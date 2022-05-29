@@ -183,7 +183,13 @@ async fn logout(cookie: &CookieJar<'_>) -> Result<()> {
 }
 
 #[get("/rss?<token>")]
-async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8>)> {
+async fn rss(mut db: Connection<Db>, token: &str, ua: UserAgent<'_>) -> Result<(ContentType, Vec<u8>)> {
+    if let Some(s) = ua.0 {
+        if s.contains("mior") {
+            return Err(Error::Custom("Request from mior is forbidden".to_owned()));
+        }
+    }
+
     let feeds: Vec<SourceFeed> = sqlx::query!(
         "SELECT feeds.id AS id, name, url, keywords \
         FROM feeds, users \
@@ -201,6 +207,20 @@ async fn rss(mut db: Connection<Db>, token: &str) -> Result<(ContentType, Vec<u8
     .await?;
 
     merge_feeds_data(&feeds).await.map(|r| (ContentType::XML, r))
+}
+
+use rocket::outcome::Outcome::Success;
+use rocket::request::Outcome;
+
+struct UserAgent<'r>(Option<&'r str>);
+
+#[async_trait::async_trait]
+impl<'r> FromRequest<'r> for UserAgent<'r> {
+    type Error = std::convert::Infallible;
+
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        Success(UserAgent(request.headers().get_one("User-Agent")))
+    }
 }
 
 pub fn stage() -> AdHoc {

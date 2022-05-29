@@ -1,6 +1,6 @@
 [package]
 name = "mior-backend"
-version = "0.0.1"
+version = "0.1.0"
 edition = "2021"
 
 [dependencies]
@@ -11,6 +11,7 @@ xmltree = "0.10"
 sha2 = "0.10"
 thiserror = "1"
 rand = "0.8"
+async-trait = "0.1"
 
 [dependencies.sqlx]
 version = "0.5.1"

@@ -1,6 +1,9 @@
-use rand::Rng;
+use std::fmt::format;
 
-use crate::error::Result;
+use rand::Rng;
+use rocket::http::Status;
+
+use crate::error::{Error, Result};
 use crate::model::{FeedInfo, SourceFeed};
 use crate::util::feed_merger::FeedMerger;
 use crate::util::feed_parser::FeedDocument;
@@ -9,11 +12,18 @@ mod feed_merger;
 mod feed_parser;
 
 pub async fn fetch_rss_info(url: &str, _limit: usize) -> Result<FeedInfo> {
-    let resp = reqwest::get(url).await?;
-    let text = resp.bytes().await?;
-    let doc = FeedDocument::parse(text.as_ref())?;
-    let feed_info = doc.read_info()?;
-    Ok(feed_info)
+    const USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
+    let client = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
+    let resp = client.get(url).send().await?;
+
+    if resp.status().is_success() {
+        let data = resp.bytes().await?;
+        let doc = FeedDocument::parse(data.as_ref())?;
+        let feed_info = doc.read_info()?;
+        Ok(feed_info)
+    } else {
+        Err(Error::FetchFeedStatus(resp.status()))
+    }
 }
 
 pub async fn merge_feeds_data(feeds: &[SourceFeed]) -> Result<Vec<u8>> {
