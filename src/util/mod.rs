@@ -1,7 +1,4 @@
-use std::fmt::format;
-
 use rand::Rng;
-use rocket::http::Status;
 
 use crate::error::{Error, Result};
 use crate::model::{FeedInfo, SourceFeed};
