@@ -44,6 +44,7 @@ interface HeadCell {
   id: keyof Data;
   label: string;
   numeric: boolean;
+  hiddenOnPhone: boolean;
 }
 
 const headCells: readonly HeadCell[] = [
@@ -52,18 +53,21 @@ const headCells: readonly HeadCell[] = [
     numeric: true,
     disablePadding: false,
     label: '#',
+    hiddenOnPhone: true,
   },
   {
     id: 'title',
     numeric: false,
     disablePadding: false,
     label: 'Title',
+    hiddenOnPhone: false,
   },
   {
     id: 'link',
     numeric: false,
     disablePadding: false,
     label: 'Link',
+    hiddenOnPhone: true,
   },
 ];
 
@@ -87,6 +91,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
       <TableRow>
         {headCells.map((headCell) => (
           <TableCell
+            sx={headCell.hiddenOnPhone ? { display: { sm: 'none', md: 'table-cell' } } : {}}
             key={headCell.id}
             align={headCell.numeric ? 'right' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'normal'}
@@ -144,13 +149,13 @@ export default function FeedPreviewTable(props: FeedPreviewTableProps) {
             {rows.slice().sort(getComparator(order, orderBy))
               .map((row) => (
                 <TableRow hover key={row.index}>
-                  <TableCell component="th" scope="row" align="right">
+                  <TableCell component="th" scope="row" align="right" sx={{ display: { sm: 'none', md: 'table-cell' } }}>
                     {row.index}
                   </TableCell>
                   <TableCell>
                     {row.title}
                   </TableCell>
-                  <TableCell padding='none'>
+                  <TableCell padding='none' sx={{ display: { sm: 'none', md: 'table-cell' } }}>
                     <a href={row.link} target="_blank" rel="noreferrer">
                       <IconButton>
                         <ArrowForwardIcon />
