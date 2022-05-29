@@ -54,7 +54,7 @@ Additionally, openssl library is required by Rocket.
 
 ```bash
 # On macOS
-brew install openssl@1.1
+brew install openssl
 
 # On Debian/Ubuntu
 sudo apt-get -y install pkg-config libssl-dev
