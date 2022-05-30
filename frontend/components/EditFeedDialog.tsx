@@ -94,6 +94,7 @@ export default function EditFeedDialog(props: Props) {
   const previewItems = filterItems(fetchedItems, feed.keywords);
 
   const handleSubmit = () => {
+      return;
     let endpoint: string;
     if (feed.id === -1) {
       endpoint = "/api/feeds"; // create
@@ -133,6 +134,7 @@ export default function EditFeedDialog(props: Props) {
             variant="standard"
             value={feed.url}
             onChange={(e) => setUrl(e.target.value)}
+            helperText={feed.url.length > 0 && !validUrl ? "Invalid" : ""}
           />
           <TextField
             margin="dense"
