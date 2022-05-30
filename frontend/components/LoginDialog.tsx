@@ -44,9 +44,9 @@ export default function LoginDialog(props: Props) {
         password: password,
       }),
     })
-      .then((result: Response) => {
-        if (result.status == 200) {
-          result.json().then((user: User) => {
+      .then((res: Response) => {
+        if (res.status == 200) {
+          res.json().then((user: User) => {
             setUser(user);
             enqueueSnackbar("Login successfully.", {
               variant: 'success',
@@ -54,7 +54,7 @@ export default function LoginDialog(props: Props) {
             router.push('/my');
           });
         } else {
-          result.text().then((message) => {
+          res.text().then((message) => {
             enqueueSnackbar(message, {
               variant: 'error',
             });

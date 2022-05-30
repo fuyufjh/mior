@@ -12,6 +12,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Zoom from '@mui/material/Zoom';
 import FeedInfo from '../models/FeedInfo';
 import { useSnackbar } from 'notistack';
+import { validateUrl } from '../common/validation';
 
 function filterItems(items: FeedItem[], keywords: string | string[]): FeedItem[] {
   if (typeof keywords === 'string') {
@@ -51,8 +52,10 @@ export default function EditFeedDialog(props: Props) {
   // State of fetched items
   const [fetchedItems, setFetchedItems] = React.useState([] as FeedItem[]);
 
+  const validUrl = validateUrl(feed.url);
+
   React.useEffect(() => {
-    if (feed.url) {
+    if (feed.url && validUrl) {
       fetch(`/api/fetch?url=${encodeURIComponent(feed.url)}`)
         .then(res => {
           if (res.status == 200) {
@@ -94,7 +97,13 @@ export default function EditFeedDialog(props: Props) {
   const previewItems = filterItems(fetchedItems, feed.keywords);
 
   const handleSubmit = () => {
+    if (!validUrl) {
+      enqueueSnackbar("Invalid URL.", {
+        variant: 'error',
+      });
       return;
+    }
+
     let endpoint: string;
     if (feed.id === -1) {
       endpoint = "/api/feeds"; // create
@@ -106,11 +115,23 @@ export default function EditFeedDialog(props: Props) {
       method: 'POST',
       body: JSON.stringify(feed),
     })
-      .then((result: any) => {
-        console.log(result);
+      .then((res: Response) => {
+        if (res.status == 201) {
+          enqueueSnackbar("Feed added successfully.", {
+            variant: 'success',
+          });
+        } else {
+          res.text().then((message) => {
+            enqueueSnackbar(message, {
+              variant: 'error',
+            });
+          });
+        }
       })
       .catch((error: any) => {
-        console.error(error);
+        enqueueSnackbar(error.toString(), {
+          variant: 'error',
+        });
       });
     handleClose();
     refreshFeedList();
@@ -134,6 +155,7 @@ export default function EditFeedDialog(props: Props) {
             variant="standard"
             value={feed.url}
             onChange={(e) => setUrl(e.target.value)}
+            error={feed.url.length > 0 && !validUrl}
             helperText={feed.url.length > 0 && !validUrl ? "Invalid" : ""}
           />
           <TextField
