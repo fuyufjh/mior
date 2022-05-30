@@ -8,6 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useSnackbar } from 'notistack';
 import { useRouter } from 'next/router'
 import User from '../models/User';
+import { validateEmail } from '../common/validation';
 
 interface Props {
   open: boolean;
@@ -26,6 +27,13 @@ export default function LoginDialog(props: Props) {
   const router = useRouter();
 
   function handleLogin(): void {
+    if (!validateEmail(email)) {
+      enqueueSnackbar("Invalid E-mail.", {
+        variant: 'error',
+      });
+      return;
+    }
+
     fetch("/api/login", {
       method: 'POST',
       headers: {

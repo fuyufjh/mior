@@ -9,6 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useSnackbar } from 'notistack';
 import { useRouter } from 'next/router'
 import User from '../models/User';
+import { validateEmail, validatePassword } from '../common/validation';
 
 interface Props {
   open: boolean;
@@ -28,6 +29,19 @@ export default function RegisterDialog(props: Props) {
   const router = useRouter();
 
   function handleRegister(): void {
+    if (!validateEmail(email)) {
+      enqueueSnackbar("Invalid E-mail.", {
+        variant: 'error',
+      });
+      return;
+    }
+    if (!validatePassword(password)) {
+      enqueueSnackbar("Password must be at least 6 characters", {
+        variant: 'error',
+      });
+      return;
+    }
+
     fetch("/api/register", {
       method: 'POST',
       headers: {
@@ -64,13 +78,18 @@ export default function RegisterDialog(props: Props) {
     handleClose();
   }
 
+  const invalidEmail = email.length > 0 && !validateEmail(email);
+  const invalidPassword = password.length > 0 && !validatePassword(password);
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="xs">
       <DialogTitle>Register</DialogTitle>
       <DialogContent>
         <TextField
           id="email"
-          label="Email"
+          error={invalidEmail}
+          helperText={invalidEmail ? "Invalid" : ""}
+          label="E-mail"
           type="email"
           fullWidth
           variant="standard"
@@ -89,6 +108,8 @@ export default function RegisterDialog(props: Props) {
         />
         <TextField
           id="password"
+          error={invalidPassword}
+          helperText={invalidPassword ? "Too short" : ""}
           label="Password"
           type="password"
           fullWidth
