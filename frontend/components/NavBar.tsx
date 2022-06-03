@@ -15,6 +15,8 @@ import IconButton from '@mui/material/IconButton';
 import { useSnackbar } from 'notistack';
 import { useRouter } from 'next/router'
 import Link from 'next/link';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import MuiLink from '@mui/material/Link';
 
 interface Props {
   user: User | null,
@@ -108,6 +110,12 @@ export default function MyAppBar(props: Props) {
               }}
             >
               <MenuItem disabled={true}>Email: {user.email}</MenuItem>
+              <MuiLink href="https://github.com/fuyufjh/mior/issues" target="_blank" rel="noreferrer" color="inherit" underline="none">
+                <MenuItem>
+                  <GitHubIcon color='action' sx={{ marginRight: '6px' }} />
+                  Report an issue
+                </MenuItem>
+              </MuiLink>
               <MenuItem onClick={handleLogOut}>Log out</MenuItem>
             </Menu>
           }
