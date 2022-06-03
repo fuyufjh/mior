@@ -5,13 +5,16 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { Button } from '@mui/material';
+import User from '../models/User';
+import Link from 'next/link';
 
 interface Props {
+  user: User,
   setOpenRegister: (open: boolean) => void;
 }
 
 const Home: NextPage<Props> = (props: Props) => {
-  const { setOpenRegister } = props;
+  const { user, setOpenRegister } = props;
 
   return (
     <Container maxWidth="lg">
@@ -50,7 +53,17 @@ const Home: NextPage<Props> = (props: Props) => {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-          <Button variant="contained" onClick={() => setOpenRegister(true)}>Register</Button>
+          {user ?
+            <Link href={'/my'}>
+              <Button variant="contained">
+                Go to My Feeds
+              </Button>
+            </Link>
+            :
+            <Button variant="contained" onClick={() => setOpenRegister(true)}>
+              Register
+            </Button>
+          }
         </Box>
       </Grid>
     </Container>

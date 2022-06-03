@@ -73,13 +73,16 @@ export default function MyAppBar(props: Props) {
               mior
             </Typography>
           </Link>
-          <Box sx={{ flexGrow: 1, display: { md: 'flex' } }}>
-            <Link href={'/my'}>
-              <Button sx={{ my: 2, color: 'white', display: 'block' }}>
-                My Feeds
-              </Button>
-            </Link>
-          </Box>
+          {user &&
+            <Box>
+              <Link href={'/my'}>
+                <Button sx={{ color: 'white', display: 'block' }}>
+                  My Feeds
+                </Button>
+              </Link>
+            </Box>
+          }
+          <Box sx={{ flexGrow: 1 }}></Box>
           {user
             ? <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ p: 0 }}>
               <Avatar
