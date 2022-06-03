@@ -78,6 +78,7 @@ export default function EditFeedDialog(props: Props) {
               enqueueSnackbar(message, {
                 variant: 'error',
               });
+              setFetchedItems([]);
             })
           }
         })
