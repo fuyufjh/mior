@@ -164,6 +164,24 @@
     },
     "query": "UPDATE feeds SET name = ?, url = ?, keywords = ? WHERE id = ? AND user_id = ?"
   },
+  "c808e3f33fd6e807d9117b878d0eb3698724ba4060c77769979f7f766d448314": {
+    "describe": {
+      "columns": [
+        {
+          "name": "feed_count",
+          "ordinal": 0,
+          "type_info": "Int"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "select count(*) as feed_count from feeds where user_id = ?"
+  },
   "f49e45cbc8c46c32b525bb06533b5a2f7b4f0c08ce77bd134f134de7a19c375f": {
     "describe": {
       "columns": [],

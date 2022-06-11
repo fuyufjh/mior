@@ -14,8 +14,20 @@ use crate::model::{FeedInfo, LoginForm, SourceFeed, User};
 use crate::util::{fetch_rss_info, merge_feeds_data};
 use crate::Db;
 
+const FEEDS_LIMIT: usize = 25;
+
 #[post("/", data = "<feed>")]
 async fn create(mut db: Connection<Db>, user: User, feed: Json<SourceFeed>) -> Result<Created<()>> {
+    let feed_count = sqlx::query!("select count(*) as feed_count from feeds where user_id = ?", user.id)
+        .fetch_one(&mut *db)
+        .await
+        .map(|r| r.feed_count as usize)?;
+    if feed_count >= FEEDS_LIMIT {
+        return Err(Error::Custom(
+            format!("Number of feeds reached limit ({feed_count}/{FEEDS_LIMIT})").to_owned(),
+        ));
+    }
+
     sqlx::query!(
         "INSERT INTO feeds (name, url, keywords, user_id) VALUES (?, ?, ?, ?)",
         feed.name,
