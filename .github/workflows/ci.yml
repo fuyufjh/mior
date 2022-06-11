@@ -39,7 +39,18 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 18
-        cache: 'yarn'
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+      shell: bash
+    - name: Restore yarn cache
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: yarn-cache-folder-${{ hashFiles('**/yarn.lock', '.yarnrc.yml') }}
+        restore-keys: |
+          yarn-cache-folder-
+
     - name: Install dependencies
       run: yarn install --frozen-lockfile
     - name: Build
