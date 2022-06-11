@@ -14,7 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v1.3.0
     - name: Run tests
       run: cargo test --verbose
+    - name: Build (release)
+      run: cargo build --release
+    - name: Upload release binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: mior-backend
+        path: target/release/mior-backend
