@@ -10,7 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  build-backend:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -29,3 +29,20 @@ jobs:
       with:
         name: mior-backend
         path: target/release/mior-backend
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: 'yarn'
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    - name: Build
+      run: yarn build
+    - name: Upload static files
+      uses: actions/upload-artifact@v3
+      with:
+        name: static
+        path: static/
