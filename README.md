@@ -2,6 +2,8 @@
 
 _Merge into one RSS_
 
+[![CI status](https://github.com/fuyufjh/mior/actions/workflows/ci.yml/badge.svg)](https://github.com/fuyufjh/mior/actions/workflows/ci.yml)
+
 ***mior*** is a lightweight web service to filter and merge multiple RSS feeds into one. It provides a pure web-based,
 responsive user interface to manage the upstream feed sources. A merged RSS is provided to user to
 fetch the merged results, which gathers all filtered items in upstream feeds.

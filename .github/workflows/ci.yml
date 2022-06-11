@@ -1,0 +1,62 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v1.3.0
+    - name: Run tests
+      run: cargo test --verbose
+    - name: Build (release)
+      run: cargo build --release
+    - name: Upload release binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: mior-backend
+        path: target/release/mior-backend
+  build-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+      shell: bash
+    - name: Restore yarn cache
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: yarn-cache-folder-${{ hashFiles('**/yarn.lock', '.yarnrc.yml') }}
+        restore-keys: |
+          yarn-cache-folder-
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    - name: Build
+      run: yarn build
+    - name: Upload static files
+      uses: actions/upload-artifact@v3
+      with:
+        name: static
+        path: static/
