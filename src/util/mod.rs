@@ -1,3 +1,7 @@
+use std::time::Instant;
+
+use futures::future::try_join_all;
+use futures::TryFutureExt;
 use rand::Rng;
 
 use crate::error::{Error, Result};
@@ -25,9 +29,16 @@ pub async fn fetch_rss_info(url: &str, _limit: usize) -> Result<FeedInfo> {
 
 pub async fn merge_feeds_data(feeds: &[SourceFeed]) -> Result<Vec<u8>> {
     let mut merger = FeedMerger::new();
-    for feed in feeds {
-        let resp = reqwest::get(&feed.url).await?;
-        let text = resp.bytes().await?;
+
+    let start_time = Instant::now();
+    let futures = feeds
+        .iter()
+        .map(|feed| reqwest::get(&feed.url).and_then(|resp| resp.bytes()));
+    let responses = try_join_all(futures).await?;
+
+    info!("Fetching {} feeds costs {:?}", feeds.len(), start_time.elapsed());
+
+    for (feed, text) in feeds.iter().zip(responses.iter()) {
         let keywords = split_keywords(&feed.keywords);
         let doc = FeedDocument::parse(text.as_ref())?.with_keywords(keywords);
         merger.append(doc)?;
