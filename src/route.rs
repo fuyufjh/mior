@@ -14,7 +14,11 @@ use crate::model::{FeedInfo, LoginForm, SourceFeed, User};
 use crate::util::{fetch_rss_info, merge_feeds_data};
 use crate::Db;
 
-const FEEDS_LIMIT: usize = 25;
+/// Default limit of feeds per user
+const FEEDS_LIMIT: usize = 20;
+
+/// Default limit of items per feed
+const FEED_ITEMS_LIMIT: usize = 100;
 
 #[post("/", data = "<feed>")]
 async fn create(mut db: Connection<Db>, user: User, feed: Json<SourceFeed>) -> Result<Created<()>> {
@@ -84,7 +88,7 @@ async fn update(mut db: Connection<Db>, user: User, id: i64, feed: Json<SourceFe
 
 #[get("/fetch?<url>")]
 async fn fetch(url: &str) -> Result<Json<FeedInfo>> {
-    fetch_rss_info(url, 100).await.map(Json)
+    fetch_rss_info(url, FEED_ITEMS_LIMIT).await.map(Json)
 }
 
 #[post("/register", data = "<user>")]
@@ -218,7 +222,9 @@ async fn rss(mut db: Connection<Db>, token: &str, ua: UserAgent<'_>) -> Result<(
     .try_collect::<Vec<_>>()
     .await?;
 
-    merge_feeds_data(&feeds).await.map(|r| (ContentType::XML, r))
+    merge_feeds_data(&feeds, FEED_ITEMS_LIMIT)
+        .await
+        .map(|r| (ContentType::XML, r))
 }
 
 use rocket::outcome::Outcome::Success;

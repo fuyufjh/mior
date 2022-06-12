@@ -21,6 +21,7 @@ impl FeedMerger {
         Self { root_node }
     }
 
+    /// Append all feed items in `doc`
     pub fn append(&mut self, doc: FeedDocument) -> Result<()> {
         let mut item_nodes = doc.into_item_nodes()?;
         let node_channel = self.root_node.get_mut_child("channel").unwrap();

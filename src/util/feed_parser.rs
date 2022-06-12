@@ -37,7 +37,7 @@ impl FeedDocument {
         self
     }
 
-    pub fn read_info(&self) -> Result<FeedInfo> {
+    pub fn read_feed(&self) -> Result<FeedInfo> {
         let node_channel = self
             .root_node
             .get_child("channel")
@@ -51,8 +51,8 @@ impl FeedDocument {
                 XMLNode::Element(e) if e.name == "item" => Some(e),
                 _ => None,
             })
-            .take(self.limit)
             .filter(|e| self.filter_by_keywords(e))
+            .take(self.limit)
             .map(Self::read_item)
             .try_collect()?;
 
@@ -155,14 +155,15 @@ mod tests {
             let data = fs::read_to_string(format!("{PATH}/{name}.xml")).unwrap();
             let feed_info = FeedDocument::parse(data.as_bytes())
                 .unwrap()
-                .with_limit(25)
-                .read_info()
+                .with_limit(20)
+                .read_feed()
                 .unwrap();
             serde_json::to_string_pretty(&feed_info).unwrap()
         };
 
         // Uncomment following lines to generate result files
         // {
+        //     use std::fs::File;
         //     use std::io::{BufWriter, Write};
         //     let file = File::create(format!("{PATH}/{name}.result.json")).unwrap();
         //     let mut writer = BufWriter::new(file);
