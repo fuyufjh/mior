@@ -1,6 +1,6 @@
 [package]
 name = "mior-backend"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [dependencies]
@@ -15,6 +15,6 @@ async-trait = "0.1"
 futures = "0.3"
 
 [dependencies.sqlx]
-version = "0.5.1"
+version = "0.5"
 default-features = false
 features = ["macros", "offline", "migrate", "chrono"]
