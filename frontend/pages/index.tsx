@@ -35,12 +35,14 @@ const Home: NextPage<Props> = (props: Props) => {
           }}
         >
           <Typography variant="h3" component="h1" gutterBottom sx={{
-            fontWeight: 600,
+            fontFamily: 'Montserrat',
+            fontWeight: 700,
             color: '#424242',
           }}>
             mior
           </Typography>
           <Typography variant="h5" component="h1" gutterBottom sx={{
+            fontFamily: 'Montserrat',
             fontWeight: 600,
             color: '#424242',
           }}>

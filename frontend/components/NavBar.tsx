@@ -68,7 +68,8 @@ export default function MyAppBar(props: Props) {
         <Toolbar>
           <Link href={'/'}>
             <Typography variant="h5" component="div" sx={{
-              fontWeight: 500,
+              fontFamily: 'Montserrat',
+              fontWeight: 600,
               cursor: 'pointer',
               paddingRight: 2,
             }}>
