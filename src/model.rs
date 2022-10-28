@@ -1,3 +1,4 @@
+use chrono::prelude::*;
 use rocket::serde::{Deserialize, Serialize};
 
 /// One article in RSS Feed
@@ -6,6 +7,8 @@ use rocket::serde::{Deserialize, Serialize};
 pub struct FeedItem {
     pub title: String,
     pub link: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pub_date: Option<DateTime<Utc>>,
 }
 
 /// Metadata of Feed

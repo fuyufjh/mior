@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use xmltree::{Element, XMLNode};
 
 use crate::error::MalformedFeedError;
@@ -82,10 +83,15 @@ impl FeedDocument {
             .get_text()
             .ok_or(MalformedFeedError::InvalidTag("link"))?
             .into_owned();
-        Ok(FeedItem { title, link })
+        let pub_date: Option<DateTime<chrono::Utc>> = node_item
+            .get_child("pubDate")
+            .and_then(|e| e.get_text())
+            .and_then(|t| DateTime::parse_from_rfc2822(t.as_ref()).ok())
+            .map(|ts| ts.into());
+        Ok(FeedItem { title, link, pub_date })
     }
 
-    pub fn into_item_nodes(mut self) -> Result<Vec<XMLNode>> {
+    pub fn into_item_nodes(mut self) -> Result<Vec<(XMLNode, Option<DateTime<Utc>>)>> {
         let node_channel = self
             .root_node
             .take_child("channel")
@@ -104,6 +110,14 @@ impl FeedDocument {
                 } else {
                     unreachable!()
                 }
+            })
+            .map(|node| {
+                let pub_date = if let XMLNode::Element(ref e) = node {
+                    FeedDocument::read_item(e).ok().and_then(|item| item.pub_date)
+                } else {
+                    unreachable!()
+                };
+                (node, pub_date)
             })
             .take(self.limit)
             .collect();

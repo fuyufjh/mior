@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use xmltree::{Element, XMLNode};
 
 use crate::error::Error;
@@ -6,32 +7,40 @@ use crate::util::feed_parser::FeedDocument;
 type Result<T> = std::result::Result<T, Error>;
 
 pub struct FeedMerger {
-    root_node: Element,
+    elements: Vec<(XMLNode, Option<DateTime<Utc>>)>,
 }
 
 impl FeedMerger {
     pub fn new() -> Self {
-        let mut root_node = Element::new("rss");
-        let mut channel = Element::new("channel");
-        let mut title = Element::new("title");
-        title.children.push(XMLNode::Text("MIOR".to_owned()));
-        channel.children.push(XMLNode::Element(title));
-        root_node.children.push(XMLNode::Element(channel));
-
-        Self { root_node }
+        Self { elements: Vec::new() }
     }
 
     /// Append all feed items in `doc`
     pub fn append(&mut self, doc: FeedDocument) -> Result<()> {
         let mut item_nodes = doc.into_item_nodes()?;
-        let node_channel = self.root_node.get_mut_child("channel").unwrap();
-        node_channel.children.append(&mut item_nodes);
+        self.elements.append(&mut item_nodes);
         Ok(())
     }
 
-    pub fn build(&self) -> Vec<u8> {
+    pub fn build(mut self) -> Vec<u8> {
+        // Sort the elements from most recent to least
+        self.elements.sort_by_key(|e| e.1);
+        self.elements.reverse();
+
+        // Build the element tree
+        let mut root_node = Element::new("rss");
+        let mut channel = Element::new("channel");
+        let mut title = Element::new("title");
+        title.children.push(XMLNode::Text("MIOR".to_owned()));
+        channel.children.push(XMLNode::Element(title));
+        for e in self.elements {
+            channel.children.push(e.0);
+        }
+        root_node.children.push(XMLNode::Element(channel));
+
+        // Write out as text
         let mut buf = Vec::new();
-        self.root_node.write(&mut buf).unwrap();
+        root_node.write(&mut buf).unwrap();
         buf
     }
 }
@@ -59,16 +68,16 @@ mod tests {
         // {
         //     use std::fs::File;
         //     use std::io::{BufWriter, Write};
-        //     let file = File::create(format!("{PATH}/merged.xml"))?;
+        //     let file = File::create(format!("{PATH}/merged.xml")).unwrap();
         //     let mut writer = BufWriter::new(file);
-        //     writer.write_all(result.as_slice())?;
-        //     writer.flush()?;
+        //     writer.write_all(result.as_slice()).unwrap();
+        //     writer.flush().unwrap();
         // }
 
         let expected = fs::read_to_string(format!("{PATH}/merged.xml")).unwrap();
 
         // NOTE: only checked length because the text representation changes every time,
-        // perhaps caused by the HashMap of attributed
+        // perhaps caused by the HashMap of attributes
         assert_eq!(expected.len(), result.len());
     }
 }
