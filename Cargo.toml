@@ -4,8 +4,6 @@ version = "0.2.0"
 edition = "2021"
 
 [dependencies]
-rocket = { version = "0.5.0-rc.2", features = ["json", "secrets"] }
-rocket_db_pools = { version = "0.1.0-rc.2", features = ["sqlx_sqlite"] }
 reqwest = { version = "0.11" }
 xmltree = "0.10"
 sha2 = "0.10"
@@ -14,7 +12,17 @@ rand = "0.8"
 async-trait = "0.1"
 futures = "0.3"
 
+[dependencies.rocket]
+git = "https://github.com/SergioBenitez/Rocket.git"
+rev = "6c3d35e7"
+features = ["json", "secrets"]
+
+[dependencies.rocket_db_pools]
+git = "https://github.com/SergioBenitez/Rocket.git"
+rev = "6c3d35e7"
+features = ["sqlx_sqlite"]
+
 [dependencies.sqlx]
-version = "0.5"
+version = "0.6"
 default-features = false
 features = ["macros", "offline", "migrate", "chrono"]
