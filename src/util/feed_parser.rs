@@ -83,11 +83,21 @@ impl FeedDocument {
             .get_text()
             .ok_or(MalformedFeedError::InvalidTag("link"))?
             .into_owned();
-        let pub_date: Option<DateTime<chrono::Utc>> = node_item
+        let mut pub_date: Option<DateTime<Utc>> = node_item
             .get_child("pubDate")
             .and_then(|e| e.get_text())
             .and_then(|t| DateTime::parse_from_rfc2822(t.as_ref()).ok())
             .map(|ts| ts.into());
+        if pub_date.is_none() {
+            // Adapt to mikanani.me. Example:
+            // <torrent><pubDate>2022-05-23T22:18:57.333</pubDate></torrent>
+            pub_date = node_item
+                .get_child("torrent")
+                .and_then(|e| e.get_child("pubDate"))
+                .and_then(|e| e.get_text())
+                .and_then(|t| DateTime::parse_from_rfc3339(&(t.to_owned() + "+08:00")).ok())
+                .map(|ts| ts.into())
+        }
         Ok(FeedItem { title, link, pub_date })
     }
 
