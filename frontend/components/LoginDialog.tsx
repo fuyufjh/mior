@@ -52,6 +52,7 @@ export default function LoginDialog(props: Props) {
               variant: 'success',
             });
             router.push('/my');
+            handleClose();
           });
         } else {
           res.text().then((message) => {
@@ -66,7 +67,6 @@ export default function LoginDialog(props: Props) {
           variant: 'error',
         });
       });
-    handleClose();
   }
 
   return (
