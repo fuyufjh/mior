@@ -1,8 +1,10 @@
+use std::fmt;
+
 use futures::stream::TryStreamExt;
 use rocket::fairing::AdHoc;
 use rocket::http::{ContentType, Cookie, CookieJar};
 use rocket::request::FromRequest;
-use rocket::response::status::Created;
+use rocket::response::status::{Created, NoContent};
 use rocket::serde::json::{serde_json, Json};
 use rocket::{futures, request, Request};
 use rocket_db_pools::{sqlx, Connection};
@@ -62,16 +64,20 @@ async fn list(mut db: Connection<Db>, user: User) -> Result<Json<Vec<SourceFeed>
 }
 
 #[delete("/<id>")]
-async fn delete(mut db: Connection<Db>, user: User, id: i64) -> Result<Option<()>> {
+async fn delete(mut db: Connection<Db>, user: User, id: i64) -> Result<NoContent> {
     let result = sqlx::query!("DELETE FROM feeds WHERE id = ? AND user_id = ?", id, user.id)
         .execute(&mut *db)
         .await?;
 
-    Ok((result.rows_affected() == 1).then(|| ()))
+    if result.rows_affected() == 1 {
+        Ok(NoContent)
+    } else {
+        Err(Error::FeedNotFound(id))
+    }
 }
 
 #[post("/<id>", data = "<feed>")]
-async fn update(mut db: Connection<Db>, user: User, id: i64, feed: Json<SourceFeed>) -> Result<Option<()>> {
+async fn update(mut db: Connection<Db>, user: User, id: i64, feed: Json<SourceFeed>) -> Result<NoContent> {
     let result = sqlx::query!(
         "UPDATE feeds SET name = ?, url = ?, keywords = ? WHERE id = ? AND user_id = ?",
         feed.name,
@@ -83,7 +89,11 @@ async fn update(mut db: Connection<Db>, user: User, id: i64, feed: Json<SourceFe
     .execute(&mut *db)
     .await?;
 
-    Ok((result.rows_affected() == 1).then(|| ()))
+    if result.rows_affected() == 1 {
+        Ok(NoContent)
+    } else {
+        Err(Error::FeedNotFound(id))
+    }
 }
 
 #[get("/fetch?<url>")]

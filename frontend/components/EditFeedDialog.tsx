@@ -117,8 +117,8 @@ export default function EditFeedDialog(props: Props) {
       body: JSON.stringify(feed),
     })
       .then((res: Response) => {
-        if (res.status == 201) {
-          enqueueSnackbar("Feed added successfully.", {
+        if (res.status == 201 || res.status == 204) {
+          enqueueSnackbar("Feed " + (isNew ? "added" : "edited") + " successfully.", {
             variant: 'success',
           });
         } else {

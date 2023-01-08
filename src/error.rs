@@ -16,19 +16,22 @@ pub enum MalformedFeedError {
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("malformed feed: {0}")]
+    #[error("Malformed feed: {0}")]
     MalformedFeed(#[from] MalformedFeedError),
 
-    #[error("fetch feed error: {0}")]
+    #[error("Fetch feed error: {0}")]
     FetchFeedRequest(#[from] reqwest::Error),
 
-    #[error("fetch feed error: status: {0}")]
+    #[error("Fetch feed error: status: {0}")]
     FetchFeedStatus(reqwest::StatusCode),
 
-    #[error("database error")]
+    #[error("Database error")]
     Database(#[from] sqlx::error::Error),
 
-    #[error("unauthorized")]
+    #[error("Feed {0} not found")]
+    FeedNotFound(i64),
+
+    #[error("Unauthorized")]
     Unauthorized,
 
     #[error("{0}")]
@@ -47,8 +50,8 @@ impl<'r, 'o: 'r> response::Responder<'r, 'o> for Error {
                 Custom(Status::FailedDependency, self.to_string()).respond_to(request)
             }
             Error::Database(e) => Debug(e).respond_to(request),
-            Error::Custom(e) => BadRequest(Some(e)).respond_to(request),
             Error::Unauthorized => Unauthorized(Some(self.to_string())).respond_to(request),
+            _ => BadRequest(Some(self.to_string())).respond_to(request),
         }
     }
 }

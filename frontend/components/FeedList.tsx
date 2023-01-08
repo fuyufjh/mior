@@ -11,6 +11,7 @@ import RssFeedIcon from '@mui/icons-material/RssFeed';
 import FeedInfo from '../models/FeedInfo';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import { Box } from '@mui/material';
+import { useSnackbar } from 'notistack';
 
 interface Props {
   feeds: FeedInfo[];
@@ -21,15 +22,29 @@ interface Props {
 export default function FeedList(props: Props) {
   const { openEditDialog, feeds, refreshFeedList } = props;
 
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
   const deleteFeed = (id: number) => {
     fetch(`/api/feeds/${id}`, {
       method: 'DELETE',
     })
-      .then((result: any) => {
-        console.log(result);
+      .then((res: Response) => {
+        if (res.status == 204) {
+          enqueueSnackbar("Feed deleted successfully.", {
+            variant: 'success',
+          });
+        } else {
+          res.text().then((message) => {
+            enqueueSnackbar(message, {
+              variant: 'error',
+            });
+          });
+        }
       })
       .catch((error: any) => {
-        console.error(error);
+        enqueueSnackbar(error.toString(), {
+          variant: 'error',
+        });
       });
     refreshFeedList();
   };
