@@ -60,3 +60,16 @@ jobs:
       with:
         name: static
         path: static/
+  deploy:
+    runs-on: ubuntu-latest
+    needs: ['build-backend', 'build-frontend']
+    steps:
+    - name: download all artifacts
+      uses: actions/download-artifact@v3
+    - name: deploy via ssh
+      uses: easingthemes/ssh-deploy@v4.0.5
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        TARGET: ${{ secrets.REMOTE_TARGET }}
