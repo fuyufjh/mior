@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid';
 import { Button } from '@mui/material';
 import User from '../models/User';
 import Link from 'next/link';
-import { useMediaQuery, useTheme } from '@mui/material';
+import { useMediaQuery, useTheme, alpha } from '@mui/material';
 
 interface Props {
   user: User,
@@ -50,24 +50,26 @@ const Home: NextPage<Props> = (props: Props) => {
       >
         <Box
           sx={{
-            my: 4,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
+            background: (theme) => alpha(theme.palette.background.default, 0.7),
+            py: 4,
+            width: 1,
           }}
         >
           <Typography variant="h3" component="h1" gutterBottom sx={{
             fontFamily: 'Montserrat',
             fontWeight: 700,
-            color: '#424242',
+            color: 'text.primary',
           }}>
             mior
           </Typography>
           <Typography variant="h5" component="h1" gutterBottom sx={{
             fontFamily: 'Montserrat',
             fontWeight: 600,
-            color: '#424242',
+            color: 'text.primary',
           }}>
             Merge into one RSS
           </Typography>
