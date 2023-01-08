@@ -4,12 +4,13 @@ import { AppProps } from 'next/app';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { CacheProvider, EmotionCache } from '@emotion/react';
-import theme from '../src/theme';
+import createTheme from '../src/theme';
 import createEmotionCache from '../src/createEmotionCache';
 import NavBar from '../components/NavBar';
 import '../styles/global.css';
 import { SnackbarProvider } from 'notistack';
 import User from '../models/User';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -44,10 +45,14 @@ export default function MyApp(props: MyAppProps) {
       })
   }, []);
 
+  const darkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const theme = React.useMemo(() => createTheme(darkMode), [darkMode]);
+
   return (
     <CacheProvider value={emotionCache}>
       <Head>
         <title>mior</title>
+        <meta name="theme-color" content={theme.palette.primary.main} />
         <meta name="viewport" content="initial-scale=1, width=device-width, minimum-scale=1, maximum-scale=1, user-scalable=no" />
       </Head>
       <ThemeProvider theme={theme}>
