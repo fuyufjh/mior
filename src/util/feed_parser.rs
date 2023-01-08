@@ -145,7 +145,7 @@ impl FeedDocument {
             }
         }
         // Simply returns false for elements without title
-        return false;
+        false
     }
 }
 

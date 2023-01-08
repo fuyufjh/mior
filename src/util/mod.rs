@@ -51,7 +51,7 @@ pub async fn merge_feeds_data(feeds: &[SourceFeed], limit: usize) -> Result<Vec<
 
 fn split_keywords(keywords: &str) -> Vec<String> {
     keywords
-        .split(" ")
+        .split(' ')
         .filter(|s| !s.is_empty())
         .map(|s| s.to_owned())
         .collect()

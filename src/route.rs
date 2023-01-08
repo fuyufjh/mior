@@ -1,5 +1,3 @@
-use std::fmt;
-
 use futures::stream::TryStreamExt;
 use rocket::fairing::AdHoc;
 use rocket::http::{ContentType, Cookie, CookieJar};
@@ -29,9 +27,9 @@ async fn create(mut db: Connection<Db>, user: User, feed: Json<SourceFeed>) -> R
         .await
         .map(|r| r.feed_count as usize)?;
     if feed_count >= FEEDS_LIMIT {
-        return Err(Error::Custom(
-            format!("Number of feeds reached limit ({feed_count}/{FEEDS_LIMIT})").to_owned(),
-        ));
+        return Err(Error::Custom(format!(
+            "Number of feeds reached limit ({feed_count}/{FEEDS_LIMIT})"
+        )));
     }
 
     sqlx::query!(
@@ -135,7 +133,7 @@ async fn register(mut db: Connection<Db>, user: Json<User>, cookie: &CookieJar<'
                 return Error::Custom("Email was registered".to_owned());
             }
         }
-        return e.into();
+        e.into()
     })?;
 
     cookie.add_private(Cookie::new("user", serde_json::to_string(&user).unwrap()));
