@@ -7,10 +7,33 @@ import Grid from '@mui/material/Grid';
 import { Button } from '@mui/material';
 import User from '../models/User';
 import Link from 'next/link';
+import { useMediaQuery, useTheme } from '@mui/material';
 
 interface Props {
   user: User,
   setOpenRegister: (open: boolean) => void;
+}
+
+// Reference: https://github.com/mui/material-ui/issues/10739
+function useAppBarHeight(): number {
+  const {
+    mixins: { toolbar },
+    breakpoints,
+  } = useTheme();
+  const toolbarDesktopQuery = breakpoints.up('sm');
+  const toolbarLandscapeQuery = `${breakpoints.up('xs')} and (orientation: landscape)`;
+  const isDesktop = useMediaQuery(toolbarDesktopQuery);
+  const isLandscape = useMediaQuery(toolbarLandscapeQuery);
+  let currentToolbarMinHeight;
+  if (isDesktop) {
+    currentToolbarMinHeight = toolbar[toolbarDesktopQuery];
+  } else if (isLandscape) {
+    currentToolbarMinHeight = toolbar[toolbarLandscapeQuery];
+  } else {
+    currentToolbarMinHeight = toolbar;
+  }
+  type MinHeight = { minHeight: number };
+  return (currentToolbarMinHeight as MinHeight).minHeight;
 }
 
 const Home: NextPage<Props> = (props: Props) => {
@@ -23,7 +46,7 @@ const Home: NextPage<Props> = (props: Props) => {
         direction="column"
         alignItems="center"
         justifyContent="center"
-        style={{ height: '80vh' }}
+        style={{ height: `calc(100vh - ${useAppBarHeight()}px)` }}
       >
         <Box
           sx={{
