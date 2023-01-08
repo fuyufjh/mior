@@ -230,6 +230,9 @@ async fn rss(mut db: Connection<Db>, token: &str, ua: UserAgent<'_>) -> Result<(
     .try_collect::<Vec<_>>()
     .await?;
 
+    // Put back the DB connection instantly since fetching feeds may take long
+    drop(db);
+
     merge_feeds_data(&feeds, FEED_ITEMS_LIMIT)
         .await
         .map(|r| (ContentType::XML, r))
