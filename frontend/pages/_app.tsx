@@ -52,7 +52,7 @@ export default function MyApp(props: MyAppProps) {
     <CacheProvider value={emotionCache}>
       <Head>
         <title>mior</title>
-        <meta name="theme-color" content={theme.palette.primary.main} />
+        <meta name="theme-color" content={darkMode ? theme.palette.background.default : theme.palette.primary.main} />
         <meta name="viewport" content="initial-scale=1, width=device-width, minimum-scale=1, maximum-scale=1, user-scalable=no" />
       </Head>
       <ThemeProvider theme={theme}>
